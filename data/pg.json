@@ -58,5 +58,52 @@
     "createdAt": "2026-09-16T10:36:48.392Z",
     "updatedAt": "2026-09-17T11:06:02.135Z",
     "videos": []
+  },
+  {
+    "name": "J4ndn",
+    "city": "Delhi",
+    "locality": "Jaipur",
+    "address": "Behrenstreet berlin",
+    "description": "Jdudndjzdmjx",
+    "gender": "unisex",
+    "totalBeds": 200,
+    "amenities": [
+      "WiFi",
+      "Food (3 meals)",
+      "Laundry",
+      "AC Rooms",
+      "Hot Water",
+      "Parking",
+      "Room Service",
+      "Power Backup",
+      "Food (2 meals)",
+      "Housekeeping",
+      "CCTV",
+      "Gym"
+    ],
+    "pricing": [
+      {
+        "type": "Triple Sharing",
+        "price": 5000,
+        "meals": "3 meals"
+      }
+    ],
+    "images": [],
+    "videos": [],
+    "ownerName": "Jrhdh",
+    "phone": "+491779407661",
+    "sharing": [],
+    "id": "pg-1789682847502-x98q",
+    "status": "pending",
+    "isFeatured": false,
+    "priceMin": 5000,
+    "priceMax": 5000,
+    "rating": 0,
+    "reviewCount": 0,
+    "likes": 0,
+    "isVerified": false,
+    "occupancy": "Triple Sharing",
+    "createdAt": "2026-09-17T22:07:27.502Z",
+    "updatedAt": "2026-09-17T22:07:27.502Z"
   }
 ]
