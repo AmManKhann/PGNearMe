@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { RequireRole } from "@/components/RequireRole";
+import { useSession } from "@/components/SessionProvider";
 import type { PGRecord } from "@/lib/types";
 import {
   Shield,
@@ -15,6 +17,7 @@ import {
   AlertTriangle,
   Clock,
   Search,
+  LogOut,
 } from "lucide-react";
 
 const statusColors: Record<string, string> = {
@@ -32,6 +35,8 @@ const staticUsers = [
 ];
 
 export default function AdminDashboard() {
+  const router = useRouter();
+  const { logout } = useSession();
   const [activeTab, setActiveTab] = useState<"overview" | "listings" | "users" | "pending">("overview");
   const [listings, setListings] = useState<PGRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -131,14 +136,26 @@ export default function AdminDashboard() {
     <RequireRole role="ADMIN" fallbackHref="/" loginHref="/admin/login">
       <div className="bg-surface min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-              <Shield className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between gap-3 mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+                <p className="text-sm text-muted">Manage listings, users, and platform settings</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-              <p className="text-sm text-muted">Manage listings, users, and platform settings</p>
-            </div>
+            <button
+              onClick={() => {
+                logout();
+                router.replace("/");
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-surface-alt text-sm font-medium text-foreground hover:border-accent hover:text-accent transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
