@@ -7,8 +7,12 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const DB_FILE = path.join(DATA_DIR, "pg.json");
 
 function ensureDB(): void {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, "[]", "utf-8");
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, "[]", "utf-8");
+  } catch {
+    // read-only filesystem (e.g. serverless): persistence handled upstream
+  }
 }
 
 function readAll(): PGRecord[] {
@@ -29,10 +33,22 @@ function readAll(): PGRecord[] {
 
 function writeAll(records: PGRecord[]): void {
   ensureDB();
-  fs.writeFileSync(DB_FILE, JSON.stringify(records, null, 2), "utf-8");
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(records, null, 2), "utf-8");
+  } catch {
+    // read-only filesystem: persistence handled by caller (remote save)
+  }
 }
 
-export function getAllPGs(filters?: {
+export function getRecords(): PGRecord[] {
+  return readAll();
+}
+
+export function writeRecords(records: PGRecord[]): void {
+  writeAll(records);
+}
+
+export interface PGFilters {
   status?: string;
   featured?: string;
   city?: string;
@@ -40,32 +56,38 @@ export function getAllPGs(filters?: {
   gender?: string;
   price?: string;
   ownerName?: string;
-}): PGRecord[] {
-  let list = readAll();
+}
+
+export function filterPGRecords(list: PGRecord[], filters?: PGFilters): PGRecord[] {
+  let filtered = list;
   if (filters) {
-    if (filters.status) list = list.filter((l) => l.status === filters.status);
-    if (filters.featured) list = list.filter((l) => l.isFeatured);
+    if (filters.status) filtered = filtered.filter((l) => l.status === filters.status);
+    if (filters.featured) filtered = filtered.filter((l) => l.isFeatured);
     if (filters.city) {
       const c = filters.city.toLowerCase();
-      list = list.filter((l) => l.city.toLowerCase().includes(c));
+      filtered = filtered.filter((l) => l.city.toLowerCase().includes(c));
     }
     if (filters.q) {
       const q = filters.q.toLowerCase();
-      list = list.filter(
+      filtered = filtered.filter(
         (l) =>
           l.name.toLowerCase().includes(q) ||
           l.locality.toLowerCase().includes(q)
       );
     }
-    if (filters.gender) list = list.filter((l) => l.gender === filters.gender);
+    if (filters.gender) filtered = filtered.filter((l) => l.gender === filters.gender);
     if (filters.price) {
       const [min, max] = filters.price.split("-").map(Number);
-      list = list.filter((l) => l.priceMin >= min && l.priceMax <= max);
+      filtered = filtered.filter((l) => l.priceMin >= min && l.priceMax <= max);
     }
     if (filters.ownerName)
-      list = list.filter((l) => l.ownerName === filters.ownerName);
+      filtered = filtered.filter((l) => l.ownerName === filters.ownerName);
   }
-  return list;
+  return filtered;
+}
+
+export function getAllPGs(filters?: PGFilters): PGRecord[] {
+  return filterPGRecords(readAll(), filters);
 }
 
 export function getPG(id: string): PGRecord | undefined {

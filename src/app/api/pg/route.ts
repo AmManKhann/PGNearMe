@@ -1,36 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllPGs, createPG } from "@/lib/store";
+import { filterPGRecords, type PGFilters } from "@/lib/store";
+import { loadPGRecords, savePGRecords, buildNewRecord } from "@/lib/pgdata";
+
+type PGRecordGender = "male" | "female" | "unisex";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
-  const filters: Record<string, string> = {};
+  const filters: PGFilters = {};
   for (const key of ["status", "featured", "city", "q", "gender", "price", "ownerName"]) {
     const v = searchParams.get(key);
-    if (v) filters[key] = v;
+    if (v) (filters as Record<string, string>)[key] = v;
   }
-  const listings = getAllPGs(Object.keys(filters).length ? filters : undefined);
+  const records = await loadPGRecords();
+  const listings = filterPGRecords(records, filters);
   return NextResponse.json({ listings });
 }
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const record = createPG({
-    name: body.name || "",
-    city: body.city || "",
-    locality: body.locality || "",
-    address: body.address || "",
-    description: body.description || "",
-    gender: body.gender || "unisex",
+  const record = buildNewRecord({
+    name: String(body.name || ""),
+    city: String(body.city || ""),
+    locality: String(body.locality || ""),
+    address: String(body.address || ""),
+    description: String(body.description || ""),
+    gender: String(body.gender || "unisex") as PGRecordGender,
     totalBeds: Number(body.totalBeds) || 0,
     amenities: Array.isArray(body.amenities) ? body.amenities : [],
     pricing: Array.isArray(body.pricing) ? body.pricing : [],
     images: Array.isArray(body.images) ? body.images : [],
     videos: Array.isArray(body.videos) ? body.videos : [],
-    ownerName: body.ownerName || "",
-    phone: body.phone || undefined,
+    ownerName: String(body.ownerName || ""),
+    phone: typeof body.phone === "string" ? body.phone : undefined,
     sharing: Array.isArray(body.sharing) ? body.sharing : [],
     lat: body.lat ? Number(body.lat) : undefined,
     lng: body.lng ? Number(body.lng) : undefined,
   });
+  const all = await loadPGRecords();
+  await savePGRecords([...all, record]);
   return NextResponse.json({ listing: record }, { status: 201 });
 }

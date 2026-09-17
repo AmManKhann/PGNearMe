@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LockKeyhole, User, LogIn, ShieldCheck } from "lucide-react";
+import { LockKeyhole, User, LogIn } from "lucide-react";
 import { useSession } from "@/components/SessionProvider";
 import type { UserSession } from "@/lib/auth";
 
@@ -109,19 +109,6 @@ export default function AdminLoginPage() {
               <LogIn className="w-4 h-4" />
               {loading ? "Signing in..." : "Sign In to Admin Dashboard"}
             </button>
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-border">
-            <h3 className="text-xs font-medium text-muted mb-2">
-              Admin demo credentials
-            </h3>
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-accent/10 border border-accent/30">
-              <ShieldCheck className="w-5 h-5 text-accent shrink-0" />
-              <div className="text-xs">
-                <p className="font-medium text-foreground">admin@pgnearme.com</p>
-                <p className="text-muted">Password: admin123</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

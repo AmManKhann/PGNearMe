@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { UserSession } from "@/lib/auth";
 
-const ADMIN_EMAIL = "admin@pgnearme.com";
-const ADMIN_PASSWORD = "admin123";
+const ADMIN_EMAIL =
+  process.env.ADMIN_EMAIL?.trim() || "admin@pgnearme.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);

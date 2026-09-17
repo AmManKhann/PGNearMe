@@ -57,35 +57,61 @@ export default function AdminDashboard() {
     return () => { cancelled = true; };
   }, []);
 
+  const applyListing = (id: string, updated: PGRecord) => {
+    setListings((prev) => prev.map((l) => (l.id === id ? updated : l)));
+  };
+
   const handleStatus = async (id: string, status: "approved" | "rejected") => {
-    await fetch(`/api/pg/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    await reload();
+    setListings((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
+    try {
+      const res = await fetch(`/api/pg/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (data?.listing) applyListing(id, data.listing as PGRecord);
+    } catch {
+      await reload();
+    }
   };
 
   const handleToggleFeatured = async (id: string) => {
     const current = listings.find((l) => l.id === id);
     if (!current) return;
-    await fetch(`/api/pg/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isFeatured: !current.isFeatured }),
-    });
-    await reload();
+    setListings((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, isFeatured: !l.isFeatured } : l))
+    );
+    try {
+      const res = await fetch(`/api/pg/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isFeatured: !current.isFeatured }),
+      });
+      const data = await res.json();
+      if (data?.listing) applyListing(id, data.listing as PGRecord);
+    } catch {
+      await reload();
+    }
   };
 
   const handleToggleVerified = async (id: string) => {
     const current = listings.find((l) => l.id === id);
     if (!current) return;
-    await fetch(`/api/pg/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isVerified: !current.isVerified }),
-    });
-    await reload();
+    setListings((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, isVerified: !l.isVerified } : l))
+    );
+    try {
+      const res = await fetch(`/api/pg/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isVerified: !current.isVerified }),
+      });
+      const data = await res.json();
+      if (data?.listing) applyListing(id, data.listing as PGRecord);
+    } catch {
+      await reload();
+    }
   };
 
   const pendingRows = listings.filter((l) => l.status === "pending");
