@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useSession } from "@/components/SessionProvider";
 import type { PGRecord } from "@/lib/types";
 import {
   Building2,
@@ -12,6 +11,7 @@ import {
   Users,
   CheckCircle2,
   Clock,
+  UserRound,
 } from "lucide-react";
 
 const statusColors: Record<string, string> = {
@@ -21,23 +21,20 @@ const statusColors: Record<string, string> = {
 };
 
 export default function OwnerDashboard() {
-  const { user } = useSession();
   const [listings, setListings] = useState<PGRecord[]>([]);
   const [pendingDelete, setPendingDelete] = useState<PGRecord | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    if (!user?.name) return;
-    const params = new URLSearchParams({ ownerName: user.name });
-    fetch(`/api/pg?${params.toString()}`)
+    fetch("/api/pg")
       .then((r) => r.json())
       .then((d) => {
         if (!cancelled) setListings(d.listings || []);
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [user?.name]);
+  }, []);
 
   const handleDelete = async () => {
     if (!pendingDelete) return;
@@ -125,6 +122,10 @@ export default function OwnerDashboard() {
                           </div>
                           <p className="text-sm text-muted">
                             {listing.locality}, {listing.city}
+                          </p>
+                          <p className="text-xs text-muted mt-1 flex items-center gap-1">
+                            <UserRound className="w-3 h-3" />
+                            {listing.ownerName || "Owner"}
                           </p>
                           <p className="text-xs text-muted mt-1">
                             ₹{listing.priceMin.toLocaleString("en-IN")}/mo &middot; {listing.totalBeds} beds

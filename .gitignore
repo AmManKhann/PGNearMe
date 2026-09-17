@@ -48,3 +48,6 @@ tun-b.txt
 prodsrv.txt
 prodsrv.err.txt
 devlog.txt
+
+.vercel
+.env*

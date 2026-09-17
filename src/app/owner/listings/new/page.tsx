@@ -5,11 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, CheckCircle2 } from "lucide-react";
 import { ListingForm, type ListingFormValues } from "@/components/ListingForm";
-import { useSession } from "@/components/SessionProvider";
 
 export default function NewListingPage() {
   const router = useRouter();
-  const { user } = useSession();
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -23,7 +21,7 @@ export default function NewListingPage() {
       const res = await fetch("/api/pg", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, ownerName: user?.name || "" }),
+        body: JSON.stringify({ ...values }),
       });
       if (!res.ok) {
         setError("Failed to submit listing. Please try again.");

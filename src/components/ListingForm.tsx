@@ -48,6 +48,7 @@ export interface ListingFormValues {
   amenities: string[];
   pricing: { type: string; price: number; meals: string }[];
   phone?: string;
+  ownerName?: string;
   images: string[];
   videos: string[];
 }
@@ -79,6 +80,7 @@ export function ListingForm({
   );
   const [totalBeds, setTotalBeds] = useState(initialData ? String(initialData.totalBeds) : "");
   const [phone, setPhone] = useState(initialData?.phone ?? "");
+  const [ownerName, setOwnerName] = useState(initialData?.ownerName ?? "");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(
     initialData?.amenities ?? []
   );
@@ -115,6 +117,10 @@ export function ListingForm({
       setFormError("Please fill in PG name, city, locality and full address.");
       return;
     }
+    if (!ownerName.trim()) {
+      setFormError("Please enter your name so you can track this listing.");
+      return;
+    }
     if (!gender) {
       setFormError("Please select the gender type.");
       return;
@@ -147,6 +153,7 @@ export function ListingForm({
         meals: r.meals.trim() || "3 meals",
       })),
       phone: phone.trim() || undefined,
+      ownerName: ownerName.trim(),
       images: mediaImages,
       videos: mediaVideos,
     });
@@ -168,6 +175,18 @@ export function ListingForm({
               placeholder="e.g. Sunshine Boys PG"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Your Name *
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Ramesh Kumar"
+              value={ownerName}
+              onChange={(e) => setOwnerName(e.target.value)}
               className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary"
             />
           </div>

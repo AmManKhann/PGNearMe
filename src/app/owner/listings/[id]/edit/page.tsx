@@ -59,7 +59,7 @@ export default function EditListingPage() {
       const res = await fetch(`/api/pg/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, ownerName: listing.ownerName }),
+        body: JSON.stringify({ ...values }),
       });
       if (!res.ok) {
         setApiError("Failed to update listing. Please try again.");

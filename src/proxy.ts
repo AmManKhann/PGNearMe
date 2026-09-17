@@ -12,10 +12,6 @@ export function proxy(request: NextRequest) {
   const authed = request.cookies.has("pgnearme_auth");
   const role = request.cookies.get("pgnearme_role")?.value;
 
-  if (pathname === "/auth/login" || pathname === "/auth/register" || pathname === "/auth/onboard") {
-    return redirectTo("/", request);
-  }
-
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     if (pathname === "/admin/login") {
       if (authed && role === "ADMIN") return redirectTo("/admin/dashboard", request);

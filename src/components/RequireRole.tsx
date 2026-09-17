@@ -8,7 +8,7 @@ import { ShieldAlert } from "lucide-react";
 export function RequireRole({
   role,
   fallbackHref = "/dashboard",
-  loginHref = "/auth/onboard",
+  loginHref = "/admin/login",
   children,
 }: {
   role: "USER" | "OWNER" | "ADMIN";

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { useSession } from "@/components/SessionProvider";
 import { PGCard } from "@/components/PGCard";
 import { TypewriterText } from "@/components/TypewriterText";
 import { toPGListing } from "@/lib/listings";
@@ -108,7 +107,6 @@ function SkeletonCard() {
 }
 
 export default function Dashboard() {
-  const { user } = useSession();
   const [records, setRecords] = useState<PGRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -163,12 +161,11 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    if (!user) return;
     const id = window.setTimeout(() => {
       requestLocation();
     }, 300);
     return () => window.clearTimeout(id);
-  }, [user]);
+  }, []);
 
   const listings = useMemo(
     () =>
@@ -225,7 +222,7 @@ export default function Dashboard() {
     });
   };
 
-  const firstName = user?.name?.trim() ? user.name.trim().split(/\s+/)[0] : "User";
+  const firstName = "User";
 
   return (
       <div className="bg-background min-h-screen">
