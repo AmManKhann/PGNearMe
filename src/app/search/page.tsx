@@ -51,12 +51,19 @@ function SearchResults() {
     let filtered = all;
 
     if (city) {
-      filtered = filtered.filter((l) => l.city.toLowerCase().includes(city.toLowerCase()));
+      const c = city.toLowerCase();
+      filtered = filtered.filter((l) =>
+        `${l.name} ${l.locality} ${l.city} ${l.address ?? ""}`
+          .toLowerCase()
+          .includes(c)
+      );
     }
     if (query) {
       const q = query.toLowerCase();
-      filtered = filtered.filter(
-        (l) => l.name.toLowerCase().includes(q) || l.locality.toLowerCase().includes(q)
+      filtered = filtered.filter((l) =>
+        `${l.name} ${l.locality} ${l.city} ${l.address ?? ""}`
+          .toLowerCase()
+          .includes(q)
       );
     }
     if (gender) {

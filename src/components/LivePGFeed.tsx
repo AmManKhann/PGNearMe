@@ -109,9 +109,9 @@ export function LivePGFeed() {
     const filtered = records.filter((r) => {
       if (
         q &&
-        !r.name.toLowerCase().includes(q) &&
-        !r.locality.toLowerCase().includes(q) &&
-        !r.city.toLowerCase().includes(q)
+        !`${r.name} ${r.locality} ${r.city} ${r.address ?? ""}`
+          .toLowerCase()
+          .includes(q)
       ) {
         return false;
       }

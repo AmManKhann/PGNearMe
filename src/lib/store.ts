@@ -69,10 +69,10 @@ export function filterPGRecords(list: PGRecord[], filters?: PGFilters): PGRecord
     }
     if (filters.q) {
       const q = filters.q.toLowerCase();
-      filtered = filtered.filter(
-        (l) =>
-          l.name.toLowerCase().includes(q) ||
-          l.locality.toLowerCase().includes(q)
+      filtered = filtered.filter((l) =>
+        `${l.name} ${l.locality} ${l.city} ${l.address ?? ""}`
+          .toLowerCase()
+          .includes(q)
       );
     }
     if (filters.gender) filtered = filtered.filter((l) => l.gender === filters.gender);
