@@ -1,0 +1,9 @@
+.env*
+tunnel*.log
+tunnel.txt
+tun-a.txt
+tun-b.txt
+prodsrv.txt
+prodsrv.err.txt
+devlog.txt
+*.tsbuildinfo
