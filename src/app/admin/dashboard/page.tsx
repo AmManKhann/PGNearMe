@@ -18,6 +18,7 @@ import {
   Clock,
   Search,
   LogOut,
+  Trash2,
 } from "lucide-react";
 
 const statusColors: Record<string, string> = {
@@ -114,6 +115,17 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (data?.listing) applyListing(id, data.listing as PGRecord);
+    } catch {
+      await reload();
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`Delete "${name}" listing? This cannot be undone.`)) return;
+    setListings((prev) => prev.filter((l) => l.id !== id));
+    try {
+      const res = await fetch(`/api/pg/${id}`, { method: "DELETE" });
+      if (!res.ok) await reload();
     } catch {
       await reload();
     }
@@ -298,6 +310,13 @@ export default function AdminDashboard() {
                           <XCircle className="w-4 h-4" />
                           Reject
                         </button>
+                        <button
+                          onClick={() => handleDelete(listing.id, listing.name)}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-500/10 text-red-400 text-sm font-medium border border-red-500/30 hover:bg-red-500/20 transition-all"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -415,12 +434,22 @@ export default function AdminDashboard() {
                           </div>
                         </td>
                         <td className="px-5 py-4">
-                          <Link
-                            href={`/pg/${listing.id}`}
-                            className="text-sm text-primary hover:underline"
-                          >
-                            View
-                          </Link>
+                          <div className="flex items-center gap-3">
+                            <Link
+                              href={`/pg/${listing.id}`}
+                              className="text-sm text-primary hover:underline"
+                            >
+                              View
+                            </Link>
+                            <button
+                              onClick={() => handleDelete(listing.id, listing.name)}
+                              aria-label={`Delete ${listing.name}`}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-sm font-medium border border-red-500/30 hover:bg-red-500/20 transition-all"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
