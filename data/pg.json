@@ -54,10 +54,10 @@
     "rating": 0,
     "reviewCount": 0,
     "likes": 0,
-    "isVerified": false,
+    "isVerified": true,
     "occupancy": "Triple Sharing",
     "createdAt": "2026-09-16T10:36:48.392Z",
-    "updatedAt": "2026-09-17T08:45:09.635Z",
+    "updatedAt": "2026-09-17T10:35:26.393Z",
     "videos": []
   }
 ]
