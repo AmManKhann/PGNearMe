@@ -30,8 +30,9 @@ export default function OwnerDashboard() {
       typeof window !== "undefined"
         ? (window.localStorage.getItem("pgnearme_owner_name") || "").trim()
         : "";
+    if (!stored) return;
     let cancelled = false;
-    fetch(`/api/pg${stored ? `?ownerName=${encodeURIComponent(stored)}` : ""}`)
+    fetch(`/api/pg?ownerName=${encodeURIComponent(stored)}`)
       .then((r) => r.json())
       .then((d) => {
         if (!cancelled) setListings(d.listings || []);
@@ -97,7 +98,9 @@ export default function OwnerDashboard() {
             {listings.length === 0 ? (
               <div className="p-10 text-center">
                 <Building2 className="w-10 h-10 text-primary/30 mx-auto mb-3" />
-                <p className="text-sm text-muted">No listings yet. Add your first PG to get started.</p>
+                <p className="text-sm text-muted">
+                  You haven&apos;t listed any PGs yet. Click &quot;+ Add New PG&quot; to get started.
+                </p>
                 <Link
                   href="/owner/listings/new"
                   className="inline-flex items-center gap-1 mt-3 text-sm font-medium text-primary-light hover:underline"
