@@ -36,7 +36,6 @@
       }
     ],
     "images": [
-      "/api/uploads/1789620478103-ndgatlwi.jpg",
       "/api/uploads/1789620478010-1q50lo0r.jpg",
       "/api/uploads/1789620478044-6mvhkxnb.jpg",
       "/api/uploads/1789620478087-ru4xt3ex.jpg",
@@ -57,7 +56,7 @@
     "isVerified": true,
     "occupancy": "Triple Sharing",
     "createdAt": "2026-09-16T10:36:48.392Z",
-    "updatedAt": "2026-09-17T10:35:56.765Z",
+    "updatedAt": "2026-09-17T11:06:02.135Z",
     "videos": []
   }
 ]
