@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://pgnearme-tau.vercel.app/sitemap.xml",
+    sitemap: "https://www.pg-near-me.com/sitemap.xml",
   };
 }

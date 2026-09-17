@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pgnearme-tau.vercel.app"),
+  metadataBase: new URL("https://www.pg-near-me.com"),
   title: {
     default:
       "PG Near Me - Find Paying Guest & Hostel Accommodation in India",
@@ -116,10 +116,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               "@graph": [
                 {
                   "@type": "Organization",
-                  "@id": "https://pgnearme-tau.vercel.app/#organization",
+                  "@id": "https://www.pg-near-me.com/#organization",
                   name: "PG Near Me",
-                  url: "https://pgnearme-tau.vercel.app",
-                  logo: "https://pgnearme-tau.vercel.app/pgnearme-logo.png",
+                  url: "https://www.pg-near-me.com",
+                  logo: "https://www.pg-near-me.com/pgnearme-logo.png",
                   contactPoint: {
                     "@type": "ContactPoint",
                     telephone: "+91-9351524550",
@@ -129,16 +129,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 },
                 {
                   "@type": "WebSite",
-                  "@id": "https://pgnearme-tau.vercel.app/#website",
-                  url: "https://pgnearme-tau.vercel.app",
+                  "@id": "https://www.pg-near-me.com/#website",
+                  url: "https://www.pg-near-me.com",
                   name: "PG Near Me",
-                  publisher: { "@id": "https://pgnearme-tau.vercel.app/#organization" },
+                  publisher: { "@id": "https://www.pg-near-me.com/#organization" },
                   potentialAction: {
                     "@type": "SearchAction",
                     target: {
                       "@type": "EntryPoint",
                       urlTemplate:
-                        "https://pgnearme-tau.vercel.app/search?city={search_term_string}",
+                        "https://www.pg-near-me.com/search?city={search_term_string}",
                     },
                     "query-input": "required name=search_term_string",
                   },

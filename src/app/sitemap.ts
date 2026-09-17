@@ -4,7 +4,7 @@ import { houseListings } from "@/lib/houses";
 import { officeListings } from "@/lib/spaces";
 import { shopListings } from "@/lib/spaces";
 
-const BASE = "https://pgnearme-tau.vercel.app";
+const BASE = "https://www.pg-near-me.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
