@@ -87,20 +87,20 @@ export function SortDropdown({
   );
 
   return (
-    <div ref={ref} className={`relative ${className}`}>
+    <div ref={ref} className={`relative min-w-0 ${className}`}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg border text-sm font-medium transition-all bg-surface ${
+        className={`w-full flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg border text-xs sm:text-sm font-medium transition-all bg-surface ${
           open
             ? "border-primary/50 text-foreground"
             : "border-border text-muted hover:border-primary/50 hover:text-foreground"
         }`}
       >
-        <ArrowUpDown className="w-4 h-4" />
-        <span className="whitespace-nowrap">Sort By</span>
+        <ArrowUpDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+        <span className="truncate">Sort By</span>
         <span className="hidden sm:inline text-foreground font-semibold">
           &middot; {SORT_LABELS[value]}
         </span>

@@ -211,7 +211,7 @@ export function LivePGFeed() {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 overflow-x-hidden">
       {/* Search + sort + filter controls */}
       <div className="mb-8">
         <div className="min-w-0">
@@ -222,40 +222,40 @@ export function LivePGFeed() {
             className="max-w-none"
           />
         </div>
-        <div className="flex flex-wrap items-center gap-2 mt-3">
+        <div className="grid grid-cols-3 gap-2 mt-3">
           <button
             onClick={requestLocation}
             disabled={status === "locating"}
-            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-medium border transition-all bg-surface ${
+            className={`min-w-0 flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium border transition-all bg-surface ${
               coords
                 ? "bg-secondary/10 text-secondary border-secondary/30"
                 : "text-muted border-border hover:text-foreground hover:border-secondary/40"
             } disabled:opacity-50`}
           >
             {status === "locating" ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin shrink-0" />
             ) : (
-              <Navigation className="w-4 h-4" />
+              <Navigation className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
             )}
-            {status === "locating" ? "Locating..." : "Near Me"}
+            <span className="truncate">{status === "locating" ? "Locating..." : "Near Me"}</span>
           </button>
           <button
             onClick={() => setFiltersOpen(true)}
-            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg border text-sm font-medium transition-all bg-surface ${
+            className={`min-w-0 flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg border text-xs sm:text-sm font-medium transition-all bg-surface ${
               activeFilterCount > 0
                 ? "border-secondary/50 text-secondary"
                 : "border-border text-muted hover:border-primary/50 hover:text-foreground"
             }`}
           >
-            <SlidersHorizontal className="w-4 h-4" />
-            Filters
+            <SlidersHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+            <span className="truncate">Filters</span>
             {activeFilterCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-secondary text-white text-xs font-bold flex items-center justify-center">
+              <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-secondary text-white text-[10px] sm:text-xs font-bold flex items-center justify-center shrink-0">
                 {activeFilterCount}
               </span>
             )}
           </button>
-          <SortDropdown value={sort} onChange={setSort} hasLocation={!!coords} />
+          <SortDropdown value={sort} onChange={setSort} hasLocation={!!coords} className="w-full" />
         </div>
       </div>
 
