@@ -26,8 +26,12 @@ export default function OwnerDashboard() {
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
+    const stored =
+      typeof window !== "undefined"
+        ? (window.localStorage.getItem("pgnearme_owner_name") || "").trim()
+        : "";
     let cancelled = false;
-    fetch("/api/pg")
+    fetch(`/api/pg${stored ? `?ownerName=${encodeURIComponent(stored)}` : ""}`)
       .then((r) => r.json())
       .then((d) => {
         if (!cancelled) setListings(d.listings || []);

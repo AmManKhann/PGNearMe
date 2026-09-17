@@ -65,6 +65,9 @@ export default function EditListingPage() {
         setApiError("Failed to update listing. Please try again.");
         return;
       }
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("pgnearme_owner_name", values.ownerName || "");
+      }
       router.push("/owner");
     } catch {
       setApiError("Failed to update listing. Please try again.");

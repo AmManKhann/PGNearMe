@@ -27,6 +27,9 @@ export default function NewListingPage() {
         setError("Failed to submit listing. Please try again.");
         return;
       }
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("pgnearme_owner_name", values.ownerName || "");
+      }
       setName(values.name);
       setSubmitted(true);
     } catch {
