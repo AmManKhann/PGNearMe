@@ -1,5 +1,6 @@
 export const FOCUS_SEARCH_EVENT = "pgnearme:focus-search";
 export const FOCUS_PENDING_KEY = "pgnearme:focus-pending";
+export const CITY_SELECT_EVENT = "pgnearme:city-select";
 
 export const SEARCH_PAGES = new Set([
   "/",

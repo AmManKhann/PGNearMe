@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Building2 } from "lucide-react";
 import { AnimatedBanner } from "@/components/AnimatedBanner";
 import { LivePGFeed } from "@/components/LivePGFeed";
+import { CityPills } from "@/components/CityPills";
 
 export const metadata: Metadata = {
   title: "PG Near Me - Find Paying Guest & Hostel Accommodation in India",
@@ -64,16 +65,8 @@ export default function HomePage() {
             double sharing and triple sharing rooms with food, WiFi, AC, laundry and
             power backup — all at transparent prices with zero brokerage.
           </p>
-          <div className="flex flex-wrap justify-center gap-2.5 mb-10">
-            {indiaCities.map((city) => (
-              <Link
-                key={city}
-                href={`/search?city=${encodeURIComponent(city)}`}
-                className="px-4 py-2 rounded-full border border-border bg-surface text-sm font-medium text-foreground hover:border-primary/50 hover:text-foreground transition-colors"
-              >
-                PG in {city}
-              </Link>
-            ))}
+          <div className="mb-10">
+            <CityPills cities={indiaCities} />
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">

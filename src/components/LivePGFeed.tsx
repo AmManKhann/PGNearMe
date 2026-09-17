@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Navigation,
   MapPin,
@@ -17,6 +17,7 @@ import { SortDropdown, type SortValue } from "@/components/SortDropdown";
 import { toPGListing, type PGListing } from "@/lib/listings";
 import type { PGRecord } from "@/lib/types";
 import { getDistanceKm } from "@/lib/geo";
+import { CITY_SELECT_EVENT } from "@/lib/searchFocus";
 import { hasAmenity, hasFood, budgetOptions, sharingOptions, amenityOptions } from "@/lib/filterOptions";
 
 type LocationStatus = "locating" | "granted" | "denied" | "idle";
@@ -50,6 +51,7 @@ export function LivePGFeed() {
   const [sort, setSort] = useState<SortValue>("newest");
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const params = new URLSearchParams({ status: "approved" });
@@ -74,6 +76,17 @@ export function LivePGFeed() {
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
     );
+  }, []);
+
+  useEffect(() => {
+    const onCitySelect = (e: Event) => {
+      const city = (e as CustomEvent<string>).detail;
+      if (!city) return;
+      setQuery(city);
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    window.addEventListener(CITY_SELECT_EVENT, onCitySelect);
+    return () => window.removeEventListener(CITY_SELECT_EVENT, onCitySelect);
   }, []);
 
   const createdAtById = useMemo(() => {
@@ -259,7 +272,7 @@ export function LivePGFeed() {
         </div>
       </div>
 
-      <div className="mb-6">
+      <div ref={resultsRef} className="mb-6">
         <h2 className="text-2xl font-bold text-foreground">
           {query ? `PGs matching "${query}"` : coords ? "PGs Near You" : "Live PG Listings"}
         </h2>
