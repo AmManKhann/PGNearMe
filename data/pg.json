@@ -1,0 +1,63 @@
+[
+  {
+    "name": "Amann",
+    "city": "Bangalore",
+    "locality": "vasant vihar",
+    "address": "vasant vihar sbi bank",
+    "description": "nanana",
+    "gender": "male",
+    "totalBeds": 60,
+    "amenities": [
+      "WiFi",
+      "Food (3 meals)",
+      "Food (2 meals)",
+      "AC Rooms",
+      "Laundry",
+      "Power Backup",
+      "CCTV",
+      "Hot Water",
+      "Parking"
+    ],
+    "pricing": [
+      {
+        "type": "Triple Sharing",
+        "price": 5000,
+        "meals": "3 meals"
+      },
+      {
+        "type": "do",
+        "price": 7500,
+        "meals": "3 meals"
+      },
+      {
+        "type": "sing",
+        "price": 12000,
+        "meals": "3 meals"
+      }
+    ],
+    "images": [
+      "/api/uploads/1789620478103-ndgatlwi.jpg",
+      "/api/uploads/1789620478010-1q50lo0r.jpg",
+      "/api/uploads/1789620478044-6mvhkxnb.jpg",
+      "/api/uploads/1789620478087-ru4xt3ex.jpg",
+      "/api/uploads/1789620478091-dhk73lht.jpg",
+      "/api/uploads/1789620478036-6ff6yc9a.jpg"
+    ],
+    "ownerName": "Demo Owner",
+    "phone": "9358922717",
+    "sharing": [],
+    "id": "pg-1789555008392-4s29",
+    "status": "approved",
+    "isFeatured": true,
+    "priceMin": 5000,
+    "priceMax": 12000,
+    "rating": 0,
+    "reviewCount": 0,
+    "likes": 0,
+    "isVerified": false,
+    "occupancy": "Triple Sharing",
+    "createdAt": "2026-09-16T10:36:48.392Z",
+    "updatedAt": "2026-09-17T08:45:09.635Z",
+    "videos": []
+  }
+]

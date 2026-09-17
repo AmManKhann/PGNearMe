@@ -1,0 +1,192 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { MapPin, Search, Navigation, Loader2 } from "lucide-react";
+import {
+  FOCUS_SEARCH_EVENT,
+  FOCUS_PENDING_KEY,
+} from "@/lib/searchFocus";
+
+export function SearchBar({
+  onSearch,
+  locationOptions = [],
+  showNearMe = true,
+  className = "",
+}: {
+  onSearch?: (opts: { city: string; lat?: number; lng?: number }) => void;
+  locationOptions?: string[];
+  showNearMe?: boolean;
+  className?: string;
+} = {}) {
+  const router = useRouter();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [city, setCity] = useState("");
+  const [locating, setLocating] = useState(false);
+  const [locationCoords, setLocationCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    const focusInput = () => {
+      rootRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      inputRef.current?.focus({ preventScroll: true });
+    };
+    const handler = () => focusInput();
+    window.addEventListener(FOCUS_SEARCH_EVENT, handler);
+
+    let pending = false;
+    try {
+      pending = sessionStorage.getItem(FOCUS_PENDING_KEY) === "1";
+    } catch {
+      /* storage unavailable */
+    }
+    if (pending) {
+      try {
+        sessionStorage.removeItem(FOCUS_PENDING_KEY);
+      } catch {
+        /* storage unavailable */
+      }
+      const raf = requestAnimationFrame(focusInput);
+      return () => {
+        cancelAnimationFrame(raf);
+        window.removeEventListener(FOCUS_SEARCH_EVENT, handler);
+      };
+    }
+
+    return () => window.removeEventListener(FOCUS_SEARCH_EVENT, handler);
+  }, []);
+
+  const handleSearch = (lat?: number, lng?: number, cityOverride?: string) => {
+    const finalCity = cityOverride !== undefined ? cityOverride : city;
+    const finalLat = lat !== undefined ? lat : locationCoords?.lat;
+    const finalLng = lng !== undefined ? lng : locationCoords?.lng;
+
+    if (onSearch) {
+      onSearch({ city: finalCity, lat: finalLat, lng: finalLng });
+      return;
+    }
+
+    const params = new URLSearchParams();
+    if (finalCity) params.set("city", finalCity);
+    if (finalLat !== undefined && finalLng !== undefined) {
+      params.set("lat", String(finalLat));
+      params.set("lng", String(finalLng));
+    }
+    router.push(`/search?${params.toString()}`);
+  };
+
+  const useMyLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setLocationCoords({ lat: latitude, lng: longitude });
+        setLocating(false);
+        handleSearch(latitude, longitude);
+      },
+      (err) => {
+        setLocating(false);
+        alert(
+          err.code === 1
+            ? "Location permission denied. Please allow location access and try again."
+            : "Could not get your location. Please try again."
+        );
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 300000 }
+    );
+  };
+
+  const normalized = city.trim().toLowerCase();
+  const suggestions = locationOptions
+    .filter((o) => o.toLowerCase().includes(normalized))
+    .slice(0, 6);
+  const showSuggestions = focused && suggestions.length > 0;
+
+  const selectSuggestion = (label: string) => {
+    setCity(label);
+    setFocused(false);
+    handleSearch(undefined, undefined, label);
+  };
+
+  return (
+    <div
+      ref={rootRef}
+      data-search-bar
+      className={`relative flex items-center gap-2 w-full max-w-2xl ${className}`}
+    >
+      <div className="relative flex-1">
+        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary" />
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="City or locality..."
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setTimeout(() => setFocused(false), 120)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          aria-label="Search by city or locality"
+          aria-expanded={showSuggestions}
+          aria-controls="pgnearme-location-suggestions"
+          role="combobox"
+          className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-border bg-surface text-foreground text-sm search-input focus:border-primary"
+        />
+
+        {showSuggestions && (
+          <div
+            id="pgnearme-location-suggestions"
+            className="absolute left-0 right-0 top-full mt-2 rounded-xl bg-surface border border-border shadow-xl z-50 overflow-hidden"
+          >
+            <p className="px-4 py-2 text-xs font-medium text-muted uppercase border-b border-border">
+              Live locations
+            </p>
+            <ul className="py-1 max-h-64 overflow-y-auto">
+              {suggestions.map((option) => (
+                <li key={option}>
+                  <button
+                    type="button"
+                    onClick={() => selectSuggestion(option)}
+                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-surface-alt hover:text-foreground transition-colors text-muted"
+                  >
+                    <MapPin className="w-4 h-4 shrink-0 text-secondary" />
+                    {option}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+      <button
+        onClick={() => handleSearch()}
+        aria-label="Search"
+        className="px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-light transition-all shrink-0"
+      >
+        <Search className="w-4 h-4" />
+      </button>
+      {showNearMe && (
+        <button
+          onClick={useMyLocation}
+          disabled={locating}
+          className={`flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-sm font-medium border transition-all shrink-0 ${
+            locationCoords
+              ? "bg-secondary/10 text-secondary border-secondary/30"
+              : "bg-surface text-muted border-border hover:text-foreground hover:border-secondary/40"
+          } disabled:opacity-50`}
+        >
+          {locating ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Navigation className="w-4 h-4" />
+          )}
+          {locating ? "Locating..." : "Near Me"}
+        </button>
+      )}
+    </div>
+  );
+}
