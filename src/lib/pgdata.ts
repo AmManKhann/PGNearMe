@@ -9,10 +9,6 @@ export function isRemote(): boolean {
   return REMOTE;
 }
 
-function rawUrl(): string {
-  return `https://raw.githubusercontent.com/${REPO}/main/data/pg.json`;
-}
-
 function apiUrl(): string {
   return `https://api.github.com/repos/${REPO}/contents/data/pg.json`;
 }
@@ -20,11 +16,16 @@ function apiUrl(): string {
 export async function loadPGRecords(): Promise<PGRecord[]> {
   if (!REMOTE) return getRecords();
   try {
-    const res = await fetch(rawUrl(), {
+    const headers: Record<string, string> = {
+      Accept: "application/vnd.github.raw+json",
+      "User-Agent": "pgnearme",
+    };
+    if (TOKEN) headers.Authorization = `Bearer ${TOKEN}`;
+    const res = await fetch(apiUrl(), {
       cache: "no-store",
-      headers: { "User-Agent": "pgnearme" },
+      headers,
     });
-    if (!res.ok) throw new Error(`raw fetch ${res.status}`);
+    if (!res.ok) throw new Error(`contents fetch ${res.status}`);
     const parsed: unknown = await res.json();
     return Array.isArray(parsed) ? (parsed as PGRecord[]) : [];
   } catch (err) {
