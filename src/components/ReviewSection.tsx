@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Star, PenLine, Tag } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Star, PenLine, Tag, User, Phone, Mail } from "lucide-react";
 import { useEngagement, useClientReady, type ReviewItem } from "@/lib/engagement";
 
 export const REVIEW_TAGS = [
@@ -59,6 +59,9 @@ function StarRating({
   );
 }
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^[6-9]\d{9}$/;
+
 export function ReviewSection({
   entityId,
   seedReviews = [],
@@ -70,17 +73,30 @@ export function ReviewSection({
 }) {
   const key = String(entityId);
   const clientReady = useClientReady();
-  const { addReview, getStoredReviews } = useEngagement();
+  const { addReview, getStoredReviews, hydrateListing } = useEngagement();
   const stored = getStoredReviews(key);
   const all = [...stored, ...seedReviews];
   const avg = all.length > 0 ? all.reduce((s, r) => s + r.rating, 0) / all.length : 0;
 
   const [rating, setRating] = useState(0);
   const [tags, setTags] = useState<string[]>([]);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
-  const [starTouched, setStarTouched] = useState(false);
+  const [error, setError] = useState("");
+  const [touched, setTouched] = useState(false);
 
-  const canSubmit = rating > 0 && tags.length > 0;
+  useEffect(() => {
+    if (clientReady) hydrateListing(key);
+  }, [clientReady, key, hydrateListing]);
+
+  const phoneValid = PHONE_RE.test(phone.replace(/[\s\-()]/g, "").replace(/^\+91/, ""));
+  const emailValid = EMAIL_RE.test(email.trim());
+  const nameValid = name.trim().length >= 2;
+  const canSubmit =
+    rating > 0 && tags.length > 0 && nameValid && phoneValid && emailValid;
 
   const toggleTag = (tag: string) => {
     setTags((prev) =>
@@ -88,21 +104,39 @@ export function ReviewSection({
     );
   };
 
-  const handleSubmit = () => {
-    if (!clientReady || !canSubmit) return;
-    addReview(key, {
-      id: `review-${Date.now()}`,
-      author: "Guest",
-      rating,
-      date: "Just now",
-      tags,
-    });
-    setRating(0);
-    setTags([]);
-    setStarTouched(false);
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 3000);
+  const handleSubmit = async () => {
+    if (!clientReady || !canSubmit || submitting) return;
+    setSubmitting(true);
+    setError("");
+    setTouched(true);
+    const result = await addReview(
+      key,
+      {
+        id: ``,
+        author: name.trim(),
+        rating,
+        date: "Just now",
+        tags,
+      },
+      { name: name.trim(), phone: phone.trim(), email: email.trim() }
+    );
+    setSubmitting(false);
+    if (result.ok) {
+      setRating(0);
+      setTags([]);
+      setName("");
+      setPhone("");
+      setEmail("");
+      setTouched(false);
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 3000);
+    } else {
+      setError(result.error || "Something went wrong. Try again.");
+    }
   };
+
+  const inputClass =
+    "w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-accent";
 
   return (
     <section className="bg-surface rounded-xl border border-border p-6">
@@ -117,7 +151,12 @@ export function ReviewSection({
 
       {justAdded && (
         <div className="mb-5 px-4 py-3 rounded-lg bg-secondary/10 border border-secondary/30 text-sm text-secondary font-medium">
-          Thanks for your rating!
+          Thanks for your rating! Your review has been submitted.
+        </div>
+      )}
+      {error && (
+        <div className="mb-5 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-400 font-medium">
+          {error}
         </div>
       )}
 
@@ -126,9 +165,9 @@ export function ReviewSection({
           <PenLine className="w-4 h-4 text-primary-light" />
           Rate this place
         </p>
-        <div className={`mb-3 ${starTouched && rating === 0 ? "opacity-60" : ""}`}>
+        <div className={`mb-3 ${touched && rating === 0 ? "opacity-60" : ""}`}>
           <div className="flex items-center gap-3 flex-wrap">
-            <StarRating value={rating} onChange={(n) => { setRating(n); setStarTouched(true); }} />
+            <StarRating value={rating} onChange={(n) => { setRating(n); setTouched(true); }} />
             <span className="text-sm font-medium text-foreground">
               {rating > 0 ? RATING_LABELS[rating] : "Tap to rate"}
             </span>
@@ -139,7 +178,7 @@ export function ReviewSection({
           <Tag className="w-3.5 h-3.5" />
           What did you like? (select at least one)
         </p>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5 mb-4">
           {REVIEW_TAGS.map((tag) => (
             <button
               key={tag}
@@ -156,16 +195,60 @@ export function ReviewSection({
           ))}
         </div>
 
-        <div className="flex items-center justify-between mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+          <label className="block">
+            <span className="text-xs font-medium text-muted mb-1.5 flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5" />
+              Your name
+            </span>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              className={inputClass}
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-muted mb-1.5 flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5" />
+              Phone
+            </span>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="10-digit mobile number"
+              className={inputClass}
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-muted mb-1.5 flex items-center gap-1.5">
+              <Mail className="w-3.5 h-3.5" />
+              Email
+            </span>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className={inputClass}
+            />
+          </label>
+        </div>
+
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <span className="text-xs text-muted">
-            {rating === 0 ? "Select a star rating" : `${RATING_LABELS[rating]} — ${tags.length} tag${tags.length === 1 ? "" : "s"}`}
+            {rating === 0
+              ? "Select a star rating"
+              : `${RATING_LABELS[rating]} — ${tags.length} tag${tags.length === 1 ? "" : "s"}`}
           </span>
           <button
             onClick={handleSubmit}
-            disabled={!canSubmit}
+            disabled={!canSubmit || submitting}
             className="px-5 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-light transition-all disabled:opacity-40 disabled:pointer-events-none"
           >
-            Submit Rating
+            {submitting ? "Submitting…" : "Submit Review"}
           </button>
         </div>
       </div>
@@ -204,7 +287,15 @@ export function ReviewSection({
                   ))}
                 </div>
               )}
-              <p className="text-xs text-muted/60">{review.date}</p>
+              <p className="text-xs text-muted/60">
+                {Number.isNaN(new Date(review.date).getTime())
+                  ? review.date
+                  : new Date(review.date).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+              </p>
             </div>
           ))}
         </div>

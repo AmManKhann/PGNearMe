@@ -48,6 +48,10 @@ function getAmenityIcon(amenity: string) {
 function parseMapsCoords(url: string): { lat: number; lng: number } | null {
   const u = url.trim();
   if (!u) return null;
+  const place3 = u.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+  if (place3) return { lat: Number(place3[1]), lng: Number(place3[2]) };
+  const place12 = u.match(/!1d(-?\d+\.\d+)!2d(-?\d+\.\d+)/);
+  if (place12) return { lat: Number(place12[2]), lng: Number(place12[1]) };
   const at = u.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
   if (at) return { lat: Number(at[1]), lng: Number(at[2]) };
   const q = u.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
@@ -115,7 +119,7 @@ function PGContent({ id }: { id: string }) {
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
   const destCoords = pg.mapsUrl ? parseMapsCoords(pg.mapsUrl) : null;
   const embedSrc = destCoords
-    ? `https://maps.google.com/maps?q=${destCoords.lat},${destCoords.lng}&t=k&z=17&output=embed`
+    ? `https://maps.google.com/maps?q=${destCoords.lat},${destCoords.lng}(${encodeURIComponent(pg.name)})&t=k&z=18&output=embed`
     : `https://maps.google.com/maps?q=${encodeURIComponent(fullAddress)}&t=k&z=16&output=embed`;
 
   return (

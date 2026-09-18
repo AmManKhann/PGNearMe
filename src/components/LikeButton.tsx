@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { Heart } from "lucide-react";
-import { useEngagement } from "@/lib/engagement";
+import { useEngagement, useClientReady } from "@/lib/engagement";
 
 export function LikeButton({
   entityId,
@@ -14,12 +15,17 @@ export function LikeButton({
   variant?: "overlay" | "inline";
   size?: "sm" | "md";
 }) {
-  const { isLiked, toggleLike } = useEngagement();
+  const { isLiked, likeCount, toggleLike, hydrateListing } = useEngagement();
+  const clientReady = useClientReady();
   const key = String(entityId);
   const liked = isLiked(key);
-  const count = seedCount + (liked ? 1 : 0);
+  const count = likeCount(key, seedCount);
 
   const iconSize = size === "sm" ? "w-4 h-4" : "w-5 h-5";
+
+  useEffect(() => {
+    if (clientReady) hydrateListing(key);
+  }, [clientReady, key, hydrateListing]);
 
   return (
     <button

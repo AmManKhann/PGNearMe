@@ -13,7 +13,13 @@ export async function GET(request: NextRequest) {
   }
   const records = await loadPGRecords();
   const listings = filterPGRecords(records, filters);
-  return NextResponse.json({ listings });
+  const ipLat = request.headers.get("x-vercel-ip-latitude");
+  const ipLng = request.headers.get("x-vercel-ip-longitude");
+  const clientLocation =
+    ipLat && ipLng && Number.isFinite(Number(ipLat)) && Number.isFinite(Number(ipLng))
+      ? { lat: Number(ipLat), lng: Number(ipLng) }
+      : undefined;
+  return NextResponse.json({ listings, clientLocation });
 }
 
 export async function POST(request: NextRequest) {
@@ -37,6 +43,10 @@ export async function POST(request: NextRequest) {
     whatsapp: typeof body.whatsapp === "string" ? body.whatsapp : undefined,
     website: typeof body.website === "string" ? body.website : undefined,
     mapsUrl: typeof body.mapsUrl === "string" ? body.mapsUrl : undefined,
+    lat:
+      typeof body.lat === "number" && Number.isFinite(body.lat) ? body.lat : undefined,
+    lng:
+      typeof body.lng === "number" && Number.isFinite(body.lng) ? body.lng : undefined,
     sharing: Array.isArray(body.sharing) ? body.sharing : [],
   });
   const all = await loadPGRecords();

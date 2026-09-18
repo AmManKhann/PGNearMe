@@ -19,7 +19,23 @@ import {
   Search,
   LogOut,
   Trash2,
+  MessageSquare,
+  Phone,
+  Mail,
+  X,
+  Heart,
 } from "lucide-react";
+
+interface ReviewRow {
+  id: string;
+  pgId: string;
+  name: string;
+  phone: string;
+  email: string;
+  rating: number;
+  tags: string[];
+  createdAt: string;
+}
 
 const statusColors: Record<string, string> = {
   approved: "bg-secondary/10 text-secondary border border-secondary/30",
@@ -38,9 +54,14 @@ const staticUsers = [
 export default function AdminDashboard() {
   const router = useRouter();
   const { logout } = useSession();
-  const [activeTab, setActiveTab] = useState<"overview" | "listings" | "users" | "pending">("overview");
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "listings" | "users" | "pending" | "reviews"
+  >("overview");
   const [listings, setListings] = useState<PGRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [reviews, setReviews] = useState<ReviewRow[]>([]);
+  const [likes, setLikes] = useState<Record<string, number>>({});
+  const [selectedReview, setSelectedReview] = useState<ReviewRow | null>(null);
 
   const reload = async () => {
     const res = await fetch("/api/pg");
@@ -57,6 +78,15 @@ export default function AdminDashboard() {
       .then((d) => {
         if (!cancelled) {
           setListings(d.listings || []);
+        }
+      })
+      .catch(() => {});
+    fetch("/api/engagement")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d) {
+          setReviews(Array.isArray(d.reviews) ? (d.reviews as ReviewRow[]) : []);
+          setLikes(typeof d.likes === "object" && d.likes !== null ? d.likes : {});
         }
       })
       .catch(() => {});
@@ -132,7 +162,7 @@ export default function AdminDashboard() {
   };
 
   const pendingRows = listings.filter((l) => l.status === "pending");
-  const approvedCount = listings.filter((l) => l.status === "approved").length;
+  const totalLikes = Object.values(likes).reduce((sum, n) => sum + (Number(n) || 0), 0);
 
   const filteredListings = listings.filter((l) => {
     if (!searchTerm) return true;
@@ -143,6 +173,11 @@ export default function AdminDashboard() {
   const recentRecords = [...listings]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
+
+  const listingName = (pgId: string) => {
+    const l = listings.find((x) => x.id === pgId);
+    return l ? `${l.name} — ${l.city}` : pgId;
+  };
 
   return (
     <RequireRole role="ADMIN" fallbackHref="/" loginHref="/admin/login">
@@ -174,8 +209,8 @@ export default function AdminDashboard() {
             {[
               { label: "Total Listings", value: String(listings.length), icon: Building2, color: "text-primary" },
               { label: "Pending Approval", value: String(pendingRows.length), icon: Clock, color: "text-accent" },
-              { label: "Approved", value: String(approvedCount), icon: CheckCircle, color: "text-secondary" },
-              { label: "Rejected", value: String(listings.filter((l) => l.status === "rejected").length), icon: XCircle, color: "text-red-500" },
+              { label: "Reviews Received", value: String(reviews.length), icon: MessageSquare, color: "text-secondary" },
+              { label: "Total Likes", value: String(totalLikes), icon: Heart, color: "text-red-500" },
             ].map(({ label, value, icon: Icon, color }) => (
               <div key={label} className="bg-surface rounded-xl border border-border p-5">
                 <div className="flex items-center gap-3">
@@ -192,7 +227,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex gap-1 bg-surface rounded-xl border border-border p-1 mb-6 w-fit overflow-x-auto">
-            {(["overview", "pending", "listings", "users"] as const).map((tab) => (
+            {(["overview", "pending", "listings", "users", "reviews"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -206,6 +241,11 @@ export default function AdminDashboard() {
                 {tab === "pending" && pendingRows.length > 0 && (
                   <span className="ml-1.5 bg-accent text-white text-xs px-1.5 py-0.5 rounded-full">
                     {pendingRows.length}
+                  </span>
+                )}
+                {tab === "reviews" && reviews.length > 0 && (
+                  <span className="ml-1.5 bg-accent text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {reviews.length}
                   </span>
                 )}
               </button>
@@ -526,8 +566,182 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
+
+          {activeTab === "reviews" && (
+            <div className="bg-surface rounded-xl border border-border overflow-hidden">
+              <div className="p-5 border-b border-border flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-foreground">
+                  Review Submissions ({reviews.length})
+                </h2>
+                <span className="text-xs text-muted">
+                  Click Details to view the full submitted form
+                </span>
+              </div>
+              {reviews.length === 0 ? (
+                <div className="p-10 text-center">
+                  <MessageSquare className="w-10 h-10 text-muted mx-auto mb-3" />
+                  <p className="text-muted">No reviews yet. New submissions will appear here.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-border">
+                  {reviews.map((review) => (
+                    <div
+                      key={review.id}
+                      className="p-5 hover:bg-surface/50 transition-colors"
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                            <MessageSquare className="w-6 h-6 text-secondary" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-semibold text-foreground">{review.name}</h3>
+                              <div className="flex items-center gap-0.5">
+                                {[1, 2, 3, 4, 5].map((n) => (
+                                  <Star
+                                    key={n}
+                                    className={`w-3.5 h-3.5 ${
+                                      n <= review.rating
+                                        ? "text-accent fill-accent"
+                                        : "text-muted/30"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-sm text-muted mt-0.5">
+                              For: {listingName(review.pgId)}
+                            </p>
+                            <p className="text-xs text-muted mt-1">
+                              {new Date(review.createdAt).toLocaleString("en-IN", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setSelectedReview(review)}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-medium hover:bg-secondary/90 transition-all neon-glow-green shrink-0"
+                        >
+                          <Eye className="w-4 h-4" />
+                          Details
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
+
+      {selectedReview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={() => setSelectedReview(null)}
+        >
+          <div
+            className="bg-surface rounded-xl border border-border max-w-lg w-full max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-5 border-b border-border">
+              <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-secondary" />
+                Review Details
+              </h3>
+              <button
+                onClick={() => setSelectedReview(null)}
+                aria-label="Close"
+                className="p-2 rounded-lg hover:bg-surface transition-colors"
+              >
+                <X className="w-5 h-5 text-muted" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <p className="text-xs font-medium text-muted uppercase mb-1">Submitted For</p>
+                <Link
+                  href={`/pg/${selectedReview.pgId}`}
+                  className="text-sm text-primary hover:underline font-medium"
+                >
+                  {listingName(selectedReview.pgId)}
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs font-medium text-muted uppercase mb-1">Name</p>
+                  <p className="text-sm font-medium text-foreground">{selectedReview.name}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted uppercase mb-1">Phone</p>
+                  <p className="text-sm font-medium text-foreground flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-muted" />
+                    {selectedReview.phone}
+                  </p>
+                </div>
+                <div className="sm:col-span-2">
+                  <p className="text-xs font-medium text-muted uppercase mb-1">Email</p>
+                  <p className="text-sm font-medium text-foreground flex items-center gap-1.5 break-all">
+                    <Mail className="w-3.5 h-3.5 text-muted shrink-0" />
+                    {selectedReview.email}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted uppercase mb-1">Rating</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <Star
+                        key={n}
+                        className={`w-5 h-5 ${
+                          n <= selectedReview.rating
+                            ? "text-accent fill-accent"
+                            : "text-muted/30"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm font-semibold text-foreground">
+                    {selectedReview.rating} / 5
+                  </span>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted uppercase mb-2">Highlights Selected</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedReview.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2.5 py-1 rounded-full bg-primary/10 text-primary-light text-xs font-medium border border-primary/30"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted uppercase mb-1">Submitted On</p>
+                <p className="text-sm text-foreground">
+                  {new Date(selectedReview.createdAt).toLocaleString("en-IN", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </RequireRole>
   );
 }

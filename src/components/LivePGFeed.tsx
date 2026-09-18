@@ -57,7 +57,14 @@ export function LivePGFeed() {
     const params = new URLSearchParams({ status: "approved" });
     fetch(`/api/pg?${params.toString()}`)
       .then((r) => r.json())
-      .then((d) => setRecords(d.listings || []))
+      .then((d) => {
+        setRecords(d.listings || []);
+        const cl = d.clientLocation as { lat?: number; lng?: number } | undefined;
+        if (cl && typeof cl.lat === "number" && typeof cl.lng === "number") {
+          const ipCoords = { lat: cl.lat, lng: cl.lng };
+          setCoords((prev) => (prev ? prev : ipCoords));
+        }
+      })
       .catch(() => setRecords([]))
       .finally(() => setLoading(false));
   }, []);
@@ -196,7 +203,7 @@ export function LivePGFeed() {
   };
 
   const showBanner =
-    (status === "denied" || !geolocationSupported) && !bannerDismissed;
+    !coords && (status === "denied" || !geolocationSupported) && !bannerDismissed;
 
   const requestLocation = () => {
     setBannerDismissed(false);
