@@ -4,17 +4,23 @@ export function MapEmbed({
   lat,
   lng,
   label,
+  mapsUrl,
   className = "",
 }: {
   lat: number;
   lng: number;
   label?: string;
+  mapsUrl?: string;
   className?: string;
 }) {
   const half = 0.008;
   const bbox = `${lng - half},${lat - half},${lng + half},${lat + half}`;
   const osmSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
-  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  const directionsUrl = mapsUrl
+    ? mapsUrl.startsWith("http")
+      ? mapsUrl
+      : `https://${mapsUrl}`
+    : `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 
   return (
     <div className={`bg-surface rounded-xl border border-border overflow-hidden ${className}`}>

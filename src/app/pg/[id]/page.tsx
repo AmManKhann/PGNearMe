@@ -4,13 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import type { PGRecord } from "@/lib/types";
-import { MapEmbed } from "@/components/MapEmbed";
-import { getCityCoords } from "@/lib/geo";
 import { LikeButton } from "@/components/LikeButton";
 import { ReviewSection } from "@/components/ReviewSection";
 import { ImageGallery } from "@/components/ImageGallery";
 import {
   MapPin,
+  Navigation,
   Star,
   ShieldCheck,
   Wifi,
@@ -94,9 +93,14 @@ function PGContent({ id }: { id: string }) {
     );
   }
 
-  const fallback = getCityCoords(pg.city);
-  const lat = pg.lat ?? fallback.lat;
-  const lng = pg.lng ?? fallback.lng;
+  const fullAddress = [pg.address, pg.locality, pg.city, pg.state, pg.pincode]
+    .filter((part) => part && String(part).trim())
+    .join(", ");
+  const mapsLink = pg.mapsUrl?.trim()
+    ? pg.mapsUrl.startsWith("http")
+      ? pg.mapsUrl
+      : `https://${pg.mapsUrl}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
 
   return (
     <div className="bg-surface-alt min-h-screen">
@@ -224,12 +228,32 @@ function PGContent({ id }: { id: string }) {
                 ))}
               </div>
 
-              <div className="mt-6">
-                <MapEmbed
-                  lat={lat}
-                  lng={lng}
-                  label={`${pg.address}${pg.state ? `, ${pg.state}` : ""}${pg.pincode ? ` ${pg.pincode}` : ""}`}
-                />
+              <div className="mt-6 bg-surface-alt rounded-xl border border-border p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <MapPin className="w-5 h-5 text-accent" />
+                  <h2 className="text-lg font-semibold text-foreground">Location</h2>
+                </div>
+                <p className="text-muted leading-relaxed mb-5">{fullAddress}</p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <a
+                    href={mapsLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-light transition-all neon-glow"
+                  >
+                    <Navigation className="w-5 h-5" />
+                    Get Directions
+                  </a>
+                  <a
+                    href={mapsLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-surface border border-border text-foreground font-semibold hover:border-primary/50 hover:text-primary transition-all"
+                  >
+                    <MapPin className="w-5 h-5" />
+                    Open in Google Maps
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -303,6 +327,17 @@ function PGContent({ id }: { id: string }) {
                     >
                       <Globe className="w-5 h-5" />
                       Visit Website
+                    </a>
+                  )}
+                  {pg.mapsUrl && (
+                    <a
+                      href={pg.mapsUrl.startsWith("http") ? pg.mapsUrl : `https://${pg.mapsUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-surface-alt border border-border text-foreground font-semibold hover:border-primary/50 hover:text-primary transition-all"
+                    >
+                      <MapPin className="w-5 h-5" />
+                      Open Exact Location in Google Maps
                     </a>
                   )}
                 </div>

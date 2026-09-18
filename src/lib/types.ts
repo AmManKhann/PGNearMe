@@ -35,6 +35,7 @@ export interface PGRecord {
   phone?: string;
   whatsapp?: string;
   website?: string;
+  mapsUrl?: string;
   lat?: number;
   lng?: number;
   createdAt: string;

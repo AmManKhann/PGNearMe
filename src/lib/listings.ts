@@ -20,6 +20,7 @@ export interface PGListing {
   phone?: string;
   whatsapp?: string;
   website?: string;
+  mapsUrl?: string;
   isVerified: boolean;
   isFeatured: boolean;
   occupancy: string;
@@ -57,6 +58,7 @@ export function toPGListing(
     phone: record.phone,
     whatsapp: record.whatsapp,
     website: record.website,
+    mapsUrl: record.mapsUrl,
     lat: record.lat,
     lng: record.lng,
     distance,

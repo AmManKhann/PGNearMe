@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { MediaUpload } from "@/components/MediaUpload";
 import type { PGRecord } from "@/lib/types";
-import { getCityCoords } from "@/lib/geo";
 
 const defaultAmenities = [
   "WiFi",
@@ -89,11 +88,10 @@ export interface ListingFormValues {
   phone?: string;
   whatsapp?: string;
   website?: string;
+  mapsUrl?: string;
   ownerName?: string;
   images: string[];
   videos: string[];
-  lat?: number;
-  lng?: number;
 }
 
 interface ListingFormProps {
@@ -127,6 +125,7 @@ export function ListingForm({
   const [phone, setPhone] = useState(initialData?.phone ?? "");
   const [whatsapp, setWhatsapp] = useState(initialData?.whatsapp ?? "");
   const [website, setWebsite] = useState(initialData?.website ?? "");
+  const [mapsUrl, setMapsUrl] = useState(initialData?.mapsUrl ?? "");
   const [ownerName, setOwnerName] = useState(initialData?.ownerName ?? "");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(
     initialData?.amenities ?? []
@@ -143,7 +142,6 @@ export function ListingForm({
   const [mediaImages, setMediaImages] = useState<string[]>(initialData?.images ?? []);
   const [mediaVideos, setMediaVideos] = useState<string[]>(initialData?.videos ?? []);
   const [formError, setFormError] = useState("");
-  const [geocoding, setGeocoding] = useState(false);
 
   const toggleAmenity = (amenity: string) => {
     setSelectedAmenities((prev) =>
@@ -188,33 +186,6 @@ export function ListingForm({
       setFormError("Add at least one room type with a valid price.");
       return;
     }
-    let lat: number | undefined;
-    let lng: number | undefined;
-    setGeocoding(true);
-    try {
-      const q = `${locality.trim()}, ${city.trim()}, ${state.trim()}${
-        pincode.trim() ? ` ${pincode.trim()}` : ""
-      }, India`;
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`,
-        { headers: { Accept: "application/json" } }
-      );
-      const data = (await res.json()) as
-        | { lat?: string; lon?: string }[]
-        | undefined;
-      if (Array.isArray(data) && data[0]?.lat) {
-        lat = Number(data[0].lat);
-        lng = Number(data[0].lon);
-      } else {
-        const fb = getCityCoords(city.trim());
-        lat = fb.lat;
-        lng = fb.lng;
-      }
-    } catch {
-      const fb = getCityCoords(city.trim());
-      lat = fb.lat;
-      lng = fb.lng;
-    }
     onSubmit({
       name: name.trim(),
       city: city.trim(),
@@ -238,13 +209,11 @@ export function ListingForm({
       website: ["na", "n/a", "none"].includes(website.trim().toLowerCase())
         ? undefined
         : website.trim() || undefined,
+      mapsUrl: mapsUrl.trim() || undefined,
       ownerName: ownerName.trim(),
       images: mediaImages,
       videos: mediaVideos,
-      lat,
-      lng,
     });
-    setGeocoding(false);
   };
 
   const shownError = formError || error;
@@ -353,6 +322,21 @@ export function ListingForm({
               onChange={(e) => setAddress(e.target.value)}
               className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary resize-none"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Google Maps Location Link
+            </label>
+            <input
+              type="url"
+              placeholder="Paste Google Maps URL here"
+              value={mapsUrl}
+              onChange={(e) => setMapsUrl(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary"
+            />
+            <p className="mt-1 text-xs text-muted">
+              Paste the Google Maps link to show the exact location and enable turn-by-turn navigation.
+            </p>
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">
@@ -542,10 +526,10 @@ export function ListingForm({
         {shownError && <p className="text-sm text-red-500">{shownError}</p>}
         <button
           onClick={handleSubmit}
-          disabled={submitting || geocoding}
+          disabled={submitting}
           className="px-8 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-light transition-all neon-glow disabled:opacity-60"
         >
-          {geocoding ? "Locating address..." : submitting ? "Saving..." : submitLabel}
+          {submitting ? "Saving..." : submitLabel}
         </button>
         {onCancel && (
           <button
