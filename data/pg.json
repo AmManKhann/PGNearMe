@@ -122,5 +122,57 @@
     "createdAt": "2026-09-18T21:53:56.301Z",
     "updatedAt": "2026-09-18T22:50:39.764Z",
     "mapsUrl": "https://www.google.com/maps/dir/26.935296,75.710464/Star+Heights+Building,+XP2W%2BM9J,+Gosai+Marg,+Jagannath+Puri,+Gopi+Nagar,+Jhotwara,+Jaipur,+Jaipur+Nagar+Nigam+Area,+Rajasthan+302012/@26.9433791,75.7197327,15z/data=!3m1!4b1!4m9!4m8!1m1!4e1!1m5!1m1!1s0x396db3c857372e19:0xc29e160a6b6ed080!2m2!1d75.7458766!2d26.9517098?entry=ttu&g_ep=EgoyMDI2MDkxNi4wIKXMDSoASAFQAw%3D%3D"
+  },
+  {
+    "name": "aa",
+    "city": "Jaipur",
+    "state": "Rajasthan",
+    "pincode": "302012",
+    "locality": "Udhyog nagar Jhotwara",
+    "address": "314-317 star heights Udhyog nagar Jhotwara\nUdhyog nagar",
+    "description": "rrr",
+    "gender": "male",
+    "totalBeds": 50,
+    "amenities": [
+      "WiFi",
+      "Food (3 meals)",
+      "Food (2 meals)",
+      "AC Rooms",
+      "Laundry",
+      "Power Backup",
+      "CCTV",
+      "Hot Water",
+      "Housekeeping",
+      "Gym",
+      "Parking",
+      "Room Service"
+    ],
+    "pricing": [
+      {
+        "type": "Triple Sharing",
+        "price": 5000,
+        "meals": "3 meals"
+      }
+    ],
+    "images": [],
+    "videos": [],
+    "ownerName": "aaa",
+    "phone": "+919358922717",
+    "whatsapp": "+919351524550",
+    "website": "www.pg-near-me.com",
+    "mapsUrl": "https://www.google.com/url?sa=i&source=web&rct=j&url=https://www.google.com/maps/dir/Jaipur,%2BRajasthan,%2BIndia/Star%2BHeights%2BBuilding,%2BXP2W%252BM9J,%2BGosai%2BMarg,%2BJagannath%2BPuri,%2BGopi%2BNagar,%2BJhotwara,%2BJaipur,%2BRajasthan%2B302012,%2BIndia/data%3D!4m14!4m13!1m5!1m1!19sChIJgeJXTN9KbDkRCS7yDDrG4Qw!2m2!1d75.7872709!2d26.9124336!1m5!1m1!19sChIJGS43V8izbTkRgNBuawoWnsI!2m2!1d75.7458766!2d26.9517098!3e0&ved=2ahUKEwj6rsDdn_mWAxWoi-EIHR7yGw4Qy_kOegYIAAgLEAE&opi=89978449&cd&psig=AOvVaw1mmUkgce6JBEePsXYjOH7K&ust=1789859329541000",
+    "sharing": [],
+    "id": "pg-1789773007684-nkz8",
+    "status": "pending",
+    "isFeatured": false,
+    "priceMin": 5000,
+    "priceMax": 5000,
+    "rating": 0,
+    "reviewCount": 0,
+    "likes": 0,
+    "isVerified": false,
+    "occupancy": "Triple Sharing",
+    "createdAt": "2026-09-18T23:10:07.684Z",
+    "updatedAt": "2026-09-18T23:10:07.684Z"
   }
 ]
