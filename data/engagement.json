@@ -1,5 +1,27 @@
 {
-  "reviews": [],
+  "reviews": [
+    {
+      "id": "rev-1789775862731-0nly",
+      "pgId": "pg-1789555008392-4s29",
+      "name": "aaaaaa",
+      "phone": "9358922717",
+      "email": "aaammnkhan@gmail.com",
+      "rating": 5,
+      "tags": [
+        "Best PG with cleanliness",
+        "Affordable & Value for Money",
+        "Great Food Quality",
+        "Safe & Secure Environment",
+        "Friendly Owner & Staff",
+        "Excellent Location & Connectivity",
+        "High-Speed Wi-Fi",
+        "24/7 Power Backup & Water Supply",
+        "Spacious & Well-Ventilated Rooms",
+        "Quiet & Study-Friendly Environment"
+      ],
+      "createdAt": "2026-09-18T23:57:42.731Z"
+    }
+  ],
   "likes": {
     "pg-1789555008392-4s29": 1
   }
