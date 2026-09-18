@@ -117,9 +117,10 @@
     "likes": 0,
     "isVerified": false,
     "occupancy": "Triple Sharing",
-    "lat": 26.9585861,
-    "lng": 75.7527694,
+    "lat": 26.9433791,
+    "lng": 75.7197327,
     "createdAt": "2026-09-18T21:53:56.301Z",
-    "updatedAt": "2026-09-18T21:53:56.301Z"
+    "updatedAt": "2026-09-18T22:50:39.764Z",
+    "mapsUrl": "https://www.google.com/maps/dir/26.935296,75.710464/Star+Heights+Building,+XP2W%2BM9J,+Gosai+Marg,+Jagannath+Puri,+Gopi+Nagar,+Jhotwara,+Jaipur,+Jaipur+Nagar+Nigam+Area,+Rajasthan+302012/@26.9433791,75.7197327,15z/data=!3m1!4b1!4m9!4m8!1m1!4e1!1m5!1m1!1s0x396db3c857372e19:0xc29e160a6b6ed080!2m2!1d75.7458766!2d26.9517098?entry=ttu&g_ep=EgoyMDI2MDkxNi4wIKXMDSoASAFQAw%3D%3D"
   }
 ]
