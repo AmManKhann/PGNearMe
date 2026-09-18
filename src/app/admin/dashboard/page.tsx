@@ -282,7 +282,14 @@ export default function AdminDashboard() {
                           <h3 className="font-semibold text-foreground">{listing.name}</h3>
                           <p className="text-sm text-muted">
                             Owner: {listing.ownerName} &middot; {listing.locality}, {listing.city}
+                            {listing.state ? `, ${listing.state}` : ""}
+                            {listing.pincode ? ` ${listing.pincode}` : ""}
                           </p>
+                          {listing.address && (
+                            <p className="text-sm text-muted mt-1">
+                              Address: {listing.address}
+                            </p>
+                          )}
                           <p className="text-xs text-muted mt-1">
                             {listing.totalBeds} beds &middot; ₹{listing.priceMin.toLocaleString("en-IN")}/mo &middot; Submitted{" "}
                             {new Date(listing.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
@@ -381,7 +388,14 @@ export default function AdminDashboard() {
                             <p className="font-medium text-foreground text-sm">{listing.name}</p>
                             <p className="text-xs text-muted">
                               {listing.ownerName} &middot; {listing.city}
+                              {listing.state ? `, ${listing.state}` : ""}
+                              {listing.pincode ? ` ${listing.pincode}` : ""}
                             </p>
+                            {listing.address && (
+                              <p className="text-xs text-muted mt-0.5 max-w-xs truncate">
+                                {listing.address}
+                              </p>
+                            )}
                           </div>
                         </td>
                         <td className="px-5 py-4">

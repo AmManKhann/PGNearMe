@@ -117,6 +117,8 @@
     "likes": 0,
     "isVerified": false,
     "occupancy": "Triple Sharing",
+    "lat": 26.9585861,
+    "lng": 75.7527694,
     "createdAt": "2026-09-18T21:53:56.301Z",
     "updatedAt": "2026-09-18T21:53:56.301Z"
   }
