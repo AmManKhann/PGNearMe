@@ -3,6 +3,44 @@ export interface LatLng {
   lng: number;
 }
 
+export const INDIA_CENTER: LatLng = { lat: 20.5937, lng: 78.9629 };
+
+export const CITY_COORDS: Record<string, LatLng> = {
+  // fallback city center when a listing has no coordinates
+  bangalore: { lat: 12.9716, lng: 77.5946 },
+  bengaluru: { lat: 12.9716, lng: 77.5946 },
+  mysuru: { lat: 12.2958, lng: 76.6394 },
+  mysore: { lat: 12.2958, lng: 76.6394 },
+  mumbai: { lat: 19.076, lng: 72.8777 },
+  delhi: { lat: 28.7041, lng: 77.1025 },
+  gurgaon: { lat: 28.4595, lng: 77.0266 },
+  gurugram: { lat: 28.4595, lng: 77.0266 },
+  noida: { lat: 28.5355, lng: 77.391 },
+  hyderabad: { lat: 17.385, lng: 78.4867 },
+  pune: { lat: 18.5204, lng: 73.8567 },
+  chennai: { lat: 13.0827, lng: 80.2707 },
+  kolkata: { lat: 22.5726, lng: 88.3639 },
+  ahmedabad: { lat: 23.0225, lng: 72.5714 },
+  jaipur: { lat: 26.9124, lng: 75.7873 },
+  kochi: { lat: 9.9312, lng: 76.2673 },
+  cochin: { lat: 9.9312, lng: 76.2673 },
+  lucknow: { lat: 26.8467, lng: 80.9462 },
+  surat: { lat: 21.1702, lng: 72.8311 },
+  kanpur: { lat: 26.4499, lng: 80.3319 },
+  nagpur: { lat: 21.1458, lng: 79.0882 },
+  indore: { lat: 22.7196, lng: 75.8577 },
+  patna: { lat: 25.5941, lng: 85.1376 },
+  chandigarh: { lat: 30.7333, lng: 76.7794 },
+  coimbatore: { lat: 11.0168, lng: 76.9558 },
+  vishakhapatnam: { lat: 17.6868, lng: 83.2185 },
+  visakhapatnam: { lat: 17.6868, lng: 83.2185 },
+};
+
+export function getCityCoords(city?: string | null): LatLng {
+  if (!city) return INDIA_CENTER;
+  return CITY_COORDS[city.trim().toLowerCase()] ?? INDIA_CENTER;
+}
+
 export function toRadians(deg: number): number {
   return (deg * Math.PI) / 180;
 }

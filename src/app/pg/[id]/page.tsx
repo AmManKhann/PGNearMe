@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import type { PGRecord } from "@/lib/types";
 import { MapEmbed } from "@/components/MapEmbed";
+import { getCityCoords } from "@/lib/geo";
 import { LikeButton } from "@/components/LikeButton";
 import { ReviewSection } from "@/components/ReviewSection";
 import { ImageGallery } from "@/components/ImageGallery";
@@ -93,8 +94,9 @@ function PGContent({ id }: { id: string }) {
     );
   }
 
-  const lat = pg.lat ?? 12.9716;
-  const lng = pg.lng ?? 77.5946;
+  const fallback = getCityCoords(pg.city);
+  const lat = pg.lat ?? fallback.lat;
+  const lng = pg.lng ?? fallback.lng;
 
   return (
     <div className="bg-surface-alt min-h-screen">

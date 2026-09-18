@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { MediaUpload } from "@/components/MediaUpload";
 import type { PGRecord } from "@/lib/types";
+import { getCityCoords } from "@/lib/geo";
 
 const defaultAmenities = [
   "WiFi",
@@ -91,6 +92,8 @@ export interface ListingFormValues {
   ownerName?: string;
   images: string[];
   videos: string[];
+  lat?: number;
+  lng?: number;
 }
 
 interface ListingFormProps {
@@ -140,6 +143,7 @@ export function ListingForm({
   const [mediaImages, setMediaImages] = useState<string[]>(initialData?.images ?? []);
   const [mediaVideos, setMediaVideos] = useState<string[]>(initialData?.videos ?? []);
   const [formError, setFormError] = useState("");
+  const [geocoding, setGeocoding] = useState(false);
 
   const toggleAmenity = (amenity: string) => {
     setSelectedAmenities((prev) =>
@@ -155,7 +159,7 @@ export function ListingForm({
     setPricingRows((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setFormError("");
     if (!name.trim() || !city.trim() || !state.trim() || !locality.trim() || !address.trim()) {
       setFormError("Please fill in PG name, city, state, locality and full address.");
@@ -184,6 +188,33 @@ export function ListingForm({
       setFormError("Add at least one room type with a valid price.");
       return;
     }
+    let lat: number | undefined;
+    let lng: number | undefined;
+    setGeocoding(true);
+    try {
+      const q = `${locality.trim()}, ${city.trim()}, ${state.trim()}${
+        pincode.trim() ? ` ${pincode.trim()}` : ""
+      }, India`;
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`,
+        { headers: { Accept: "application/json" } }
+      );
+      const data = (await res.json()) as
+        | { lat?: string; lon?: string }[]
+        | undefined;
+      if (Array.isArray(data) && data[0]?.lat) {
+        lat = Number(data[0].lat);
+        lng = Number(data[0].lon);
+      } else {
+        const fb = getCityCoords(city.trim());
+        lat = fb.lat;
+        lng = fb.lng;
+      }
+    } catch {
+      const fb = getCityCoords(city.trim());
+      lat = fb.lat;
+      lng = fb.lng;
+    }
     onSubmit({
       name: name.trim(),
       city: city.trim(),
@@ -210,7 +241,10 @@ export function ListingForm({
       ownerName: ownerName.trim(),
       images: mediaImages,
       videos: mediaVideos,
+      lat,
+      lng,
     });
+    setGeocoding(false);
   };
 
   const shownError = formError || error;
@@ -508,10 +542,10 @@ export function ListingForm({
         {shownError && <p className="text-sm text-red-500">{shownError}</p>}
         <button
           onClick={handleSubmit}
-          disabled={submitting}
+          disabled={submitting || geocoding}
           className="px-8 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-light transition-all neon-glow disabled:opacity-60"
         >
-          {submitting ? "Saving..." : submitLabel}
+          {geocoding ? "Locating address..." : submitting ? "Saving..." : submitLabel}
         </button>
         {onCancel && (
           <button
