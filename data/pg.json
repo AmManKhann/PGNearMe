@@ -60,5 +60,64 @@
     "createdAt": "2026-09-16T10:36:48.392Z",
     "updatedAt": "2026-09-17T11:06:02.135Z",
     "videos": []
+  },
+  {
+    "name": "aaaaa",
+    "city": "JAIPUR",
+    "state": "Rajasthan",
+    "pincode": "302012",
+    "locality": "jhotwara",
+    "address": "314/317 star heights udyog nagar Jhotwara\nUDHYOG NAGAR JHOTWARA",
+    "description": "rrrrrrr",
+    "gender": "male",
+    "totalBeds": 100,
+    "amenities": [
+      "WiFi",
+      "Power Backup",
+      "Food (3 meals)",
+      "Food (2 meals)",
+      "AC Rooms",
+      "Laundry",
+      "Parking",
+      "Hot Water",
+      "CCTV",
+      "Gym"
+    ],
+    "pricing": [
+      {
+        "type": "Triple Sharing",
+        "price": 5000,
+        "meals": "3 meals"
+      },
+      {
+        "type": "1",
+        "price": 12500,
+        "meals": "3"
+      },
+      {
+        "type": "2",
+        "price": 6500,
+        "meals": "3"
+      }
+    ],
+    "images": [],
+    "videos": [],
+    "ownerName": "sssss",
+    "phone": "+919351524550",
+    "whatsapp": "+919351524550",
+    "website": "https://www.youtube.com/watch?v=DNX6FYAFOE8",
+    "sharing": [],
+    "id": "pg-1789768436301-hnd0",
+    "status": "pending",
+    "isFeatured": false,
+    "priceMin": 5000,
+    "priceMax": 12500,
+    "rating": 0,
+    "reviewCount": 0,
+    "likes": 0,
+    "isVerified": false,
+    "occupancy": "Triple Sharing",
+    "createdAt": "2026-09-18T21:53:56.301Z",
+    "updatedAt": "2026-09-18T21:53:56.301Z"
   }
 ]
