@@ -62,68 +62,6 @@
     "videos": []
   },
   {
-    "name": "aaaaa",
-    "city": "Jaipur",
-    "state": "Rajasthan",
-    "pincode": "302012",
-    "locality": "Udyog Nagar",
-    "address": "314/317 Star Heights, Udyog Nagar, Jhotwara",
-    "description": "rrrrrrr",
-    "gender": "male",
-    "totalBeds": 100,
-    "amenities": [
-      "WiFi",
-      "Power Backup",
-      "Food (3 meals)",
-      "Food (2 meals)",
-      "AC Rooms",
-      "Laundry",
-      "Parking",
-      "Hot Water",
-      "CCTV",
-      "Gym"
-    ],
-    "pricing": [
-      {
-        "type": "Triple Sharing",
-        "price": 5000,
-        "meals": "3 meals"
-      },
-      {
-        "type": "1",
-        "price": 12500,
-        "meals": "3"
-      },
-      {
-        "type": "2",
-        "price": 6500,
-        "meals": "3"
-      }
-    ],
-    "images": [],
-    "videos": [],
-    "ownerName": "sssss",
-    "phone": "+919351524550",
-    "whatsapp": "+919351524550",
-    "website": "https://www.youtube.com/watch?v=DNX6FYAFOE8",
-    "sharing": [],
-    "id": "pg-1789768436301-hnd0",
-    "status": "pending",
-    "isFeatured": false,
-    "priceMin": 5000,
-    "priceMax": 12500,
-    "rating": 0,
-    "reviewCount": 0,
-    "likes": 0,
-    "isVerified": false,
-    "occupancy": "Triple Sharing",
-    "lat": 26.9433791,
-    "lng": 75.7197327,
-    "createdAt": "2026-09-18T21:53:56.301Z",
-    "updatedAt": "2026-09-18T22:50:39.764Z",
-    "mapsUrl": "https://www.google.com/maps/dir/26.935296,75.710464/Star+Heights+Building,+XP2W%2BM9J,+Gosai+Marg,+Jagannath+Puri,+Gopi+Nagar,+Jhotwara,+Jaipur,+Jaipur+Nagar+Nigam+Area,+Rajasthan+302012/@26.9433791,75.7197327,15z/data=!3m1!4b1!4m9!4m8!1m1!4e1!1m5!1m1!1s0x396db3c857372e19:0xc29e160a6b6ed080!2m2!1d75.7458766!2d26.9517098?entry=ttu&g_ep=EgoyMDI2MDkxNi4wIKXMDSoASAFQAw%3D%3D"
-  },
-  {
     "name": "aa",
     "city": "Jaipur",
     "state": "Rajasthan",
