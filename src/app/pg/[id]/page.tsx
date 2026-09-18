@@ -21,6 +21,7 @@ import {
   Camera,
   Phone,
   MessageCircle,
+  Globe,
   ChevronLeft,
   IndianRupee,
   Users,
@@ -269,17 +270,21 @@ function PGContent({ id }: { id: string }) {
                 )}
               </div>
 
-              {pg.phone && (
+              {(pg.phone || pg.whatsapp) && (
                 <div className="space-y-3">
+                  {pg.phone && (
+                    <a
+                      href={`tel:${pg.phone}`}
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-light transition-all neon-glow"
+                    >
+                      <Phone className="w-5 h-5" />
+                      Call Owner
+                    </a>
+                  )}
                   <a
-                    href={`tel:${pg.phone}`}
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-light transition-all neon-glow"
-                  >
-                    <Phone className="w-5 h-5" />
-                    Call Owner
-                  </a>
-                  <a
-                    href={`https://wa.me/${pg.phone.replace(/\s/g, "").replace("+", "")}`}
+                    href={`https://wa.me/${String(pg.whatsapp || pg.phone)
+                      .replace(/\s/g, "")
+                      .replace("+", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-secondary text-white font-semibold hover:bg-success transition-all neon-glow-green"
@@ -287,6 +292,17 @@ function PGContent({ id }: { id: string }) {
                     <MessageCircle className="w-5 h-5" />
                     WhatsApp
                   </a>
+                  {pg.website && (
+                    <a
+                      href={pg.website.startsWith("http") ? pg.website : `https://${pg.website}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-surface-alt border border-border text-foreground font-semibold hover:border-accent/50 hover:text-accent transition-all"
+                    >
+                      <Globe className="w-5 h-5" />
+                      Visit Website
+                    </a>
+                  )}
                 </div>
               )}
 
@@ -295,7 +311,7 @@ function PGContent({ id }: { id: string }) {
                 <p className="text-sm text-muted">{pg.ownerName}</p>
                 <p className="text-xs text-secondary mt-1 flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  Contact via {pg.phone ? "phone or WhatsApp" : "details page"}
+                  Contact via {pg.phone || pg.whatsapp ? "phone or WhatsApp" : "details page"}
                 </p>
               </div>
             </div>

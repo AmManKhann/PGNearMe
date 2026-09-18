@@ -33,6 +33,8 @@ export interface PGRecord {
   occupancy: string;
   sharing: string[];
   phone?: string;
+  whatsapp?: string;
+  website?: string;
   lat?: number;
   lng?: number;
   createdAt: string;

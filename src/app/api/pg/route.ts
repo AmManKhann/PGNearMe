@@ -34,6 +34,8 @@ export async function POST(request: NextRequest) {
     videos: Array.isArray(body.videos) ? body.videos : [],
     ownerName: String(body.ownerName || ""),
     phone: typeof body.phone === "string" ? body.phone : undefined,
+    whatsapp: typeof body.whatsapp === "string" ? body.whatsapp : undefined,
+    website: typeof body.website === "string" ? body.website : undefined,
     sharing: Array.isArray(body.sharing) ? body.sharing : [],
     lat: body.lat ? Number(body.lat) : undefined,
     lng: body.lng ? Number(body.lng) : undefined,

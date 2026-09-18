@@ -35,6 +35,38 @@ const famousCities = [
   "Kochi",
 ];
 
+const indiaStates = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+];
+
 export interface PricingRowState {
   type: string;
   price: string;
@@ -54,6 +86,8 @@ export interface ListingFormValues {
   amenities: string[];
   pricing: { type: string; price: number; meals: string }[];
   phone?: string;
+  whatsapp?: string;
+  website?: string;
   ownerName?: string;
   images: string[];
   videos: string[];
@@ -88,6 +122,8 @@ export function ListingForm({
   );
   const [totalBeds, setTotalBeds] = useState(initialData ? String(initialData.totalBeds) : "");
   const [phone, setPhone] = useState(initialData?.phone ?? "");
+  const [whatsapp, setWhatsapp] = useState(initialData?.whatsapp ?? "");
+  const [website, setWebsite] = useState(initialData?.website ?? "");
   const [ownerName, setOwnerName] = useState(initialData?.ownerName ?? "");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(
     initialData?.amenities ?? []
@@ -167,6 +203,10 @@ export function ListingForm({
         meals: r.meals.trim() || "3 meals",
       })),
       phone: phone.trim() || undefined,
+      whatsapp: whatsapp.trim() || undefined,
+      website: ["na", "n/a", "none"].includes(website.trim().toLowerCase())
+        ? undefined
+        : website.trim() || undefined,
       ownerName: ownerName.trim(),
       images: mediaImages,
       videos: mediaVideos,
@@ -229,11 +269,17 @@ export function ListingForm({
               </label>
               <input
                 type="text"
-                placeholder="e.g. Karnataka"
+                placeholder="e.g. Rajasthan"
                 value={state}
                 onChange={(e) => setState(e.target.value)}
+                list="india-states"
                 className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary"
               />
+              <datalist id="india-states">
+                {indiaStates.map((s) => (
+                  <option key={s} value={s} />
+                ))}
+              </datalist>
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">
@@ -325,9 +371,33 @@ export function ListingForm({
             </label>
             <input
               type="tel"
-              placeholder="e.g. 98765 43210"
+              placeholder="e.g. +91 00000 00000"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              WhatsApp Number
+            </label>
+            <input
+              type="tel"
+              placeholder="e.g. +91 00000 00000"
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Website Link
+            </label>
+            <input
+              type="url"
+              placeholder="e.g. https://www.yourpg.com — type NA if no website"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
               className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary"
             />
           </div>

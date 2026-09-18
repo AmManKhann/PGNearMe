@@ -17,6 +17,9 @@ export interface PGListing {
   images: string[];
   videos?: string[];
   amenities: string[];
+  phone?: string;
+  whatsapp?: string;
+  website?: string;
   isVerified: boolean;
   isFeatured: boolean;
   occupancy: string;
@@ -51,6 +54,9 @@ export function toPGListing(
     isFeatured: record.isFeatured,
     occupancy: record.occupancy,
     sharing: record.sharing,
+    phone: record.phone,
+    whatsapp: record.whatsapp,
+    website: record.website,
     lat: record.lat,
     lng: record.lng,
     distance,
