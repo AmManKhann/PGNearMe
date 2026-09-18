@@ -45,6 +45,18 @@ function getAmenityIcon(amenity: string) {
   return <Building2 className="w-5 h-5" />;
 }
 
+function parseMapsCoords(url: string): { lat: number; lng: number } | null {
+  const u = url.trim();
+  if (!u) return null;
+  const at = u.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (at) return { lat: Number(at[1]), lng: Number(at[2]) };
+  const q = u.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (q) return { lat: Number(q[1]), lng: Number(q[2]) };
+  const dest = u.match(/[?&]destination=(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (dest) return { lat: Number(dest[1]), lng: Number(dest[2]) };
+  return null;
+}
+
 export default function PGDetailPage() {
   const params = useParams<{ id: string }>();
   return <PGContent id={params.id} />;
@@ -101,6 +113,10 @@ function PGContent({ id }: { id: string }) {
       ? pg.mapsUrl
       : `https://${pg.mapsUrl}`
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+  const destCoords = pg.mapsUrl ? parseMapsCoords(pg.mapsUrl) : null;
+  const embedSrc = destCoords
+    ? `https://maps.google.com/maps?q=${destCoords.lat},${destCoords.lng}&t=k&z=17&output=embed`
+    : `https://maps.google.com/maps?q=${encodeURIComponent(fullAddress)}&t=k&z=16&output=embed`;
 
   return (
     <div className="bg-surface-alt min-h-screen">
@@ -245,7 +261,7 @@ function PGContent({ id }: { id: string }) {
                 </a>
                 <div className="mt-4 rounded-xl border border-border overflow-hidden">
                   <iframe
-                    src={`https://maps.google.com/maps?q=${encodeURIComponent(fullAddress)}&t=k&z=16&output=embed`}
+                    src={embedSrc}
                     title={`3D location view for ${pg.name}`}
                     className="w-full h-64 md:h-72 border-0 map-frame-dark"
                     loading="lazy"
