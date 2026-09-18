@@ -234,25 +234,24 @@ function PGContent({ id }: { id: string }) {
                   <h2 className="text-lg font-semibold text-foreground">Location</h2>
                 </div>
                 <p className="text-muted leading-relaxed mb-5">{fullAddress}</p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <a
-                    href={mapsLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-light transition-all neon-glow"
-                  >
-                    <Navigation className="w-5 h-5" />
-                    Get Directions
-                  </a>
-                  <a
-                    href={mapsLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-surface border border-border text-foreground font-semibold hover:border-primary/50 hover:text-primary transition-all"
-                  >
-                    <MapPin className="w-5 h-5" />
-                    Open in Google Maps
-                  </a>
+                <a
+                  href={mapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-light transition-all neon-glow"
+                >
+                  <Navigation className="w-5 h-5" />
+                  Get Directions
+                </a>
+                <div className="mt-4 rounded-xl border border-border overflow-hidden">
+                  <iframe
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(fullAddress)}&t=k&z=16&output=embed`}
+                    title={`3D location view for ${pg.name}`}
+                    className="w-full h-64 md:h-72 border-0 map-frame-dark"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    allowFullScreen
+                  />
                 </div>
               </div>
             </div>
@@ -329,17 +328,6 @@ function PGContent({ id }: { id: string }) {
                       Visit Website
                     </a>
                   )}
-                  {pg.mapsUrl && (
-                    <a
-                      href={pg.mapsUrl.startsWith("http") ? pg.mapsUrl : `https://${pg.mapsUrl}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-surface-alt border border-border text-foreground font-semibold hover:border-primary/50 hover:text-primary transition-all"
-                    >
-                      <MapPin className="w-5 h-5" />
-                      Open Exact Location in Google Maps
-                    </a>
-                  )}
                 </div>
               )}
 
@@ -349,6 +337,10 @@ function PGContent({ id }: { id: string }) {
                 <p className="text-xs text-secondary mt-1 flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   Contact via {pg.phone || pg.whatsapp ? "phone or WhatsApp" : "details page"}
+                </p>
+                <p className="text-xs text-muted mt-1 flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  Response time: usually within 1 hour
                 </p>
               </div>
             </div>

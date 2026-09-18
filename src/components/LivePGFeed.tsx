@@ -48,7 +48,7 @@ export function LivePGFeed() {
   const [status, setStatus] = useState<LocationStatus>("locating");
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<SortValue>("newest");
+  const [sort, setSort] = useState<SortValue>("nearest");
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
