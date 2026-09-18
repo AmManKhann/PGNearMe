@@ -20,7 +20,7 @@ const defaultAmenities = [
   "Room Service",
 ];
 
-const cities = [
+const famousCities = [
   "Bangalore",
   "Mumbai",
   "Delhi",
@@ -29,6 +29,10 @@ const cities = [
   "Chennai",
   "Kolkata",
   "Ahmedabad",
+  "Jaipur",
+  "Lucknow",
+  "Surat",
+  "Kochi",
 ];
 
 export interface PricingRowState {
@@ -40,6 +44,8 @@ export interface PricingRowState {
 export interface ListingFormValues {
   name: string;
   city: string;
+  state: string;
+  pincode: string;
   locality: string;
   address: string;
   description: string;
@@ -72,6 +78,8 @@ export function ListingForm({
 }: ListingFormProps) {
   const [name, setName] = useState(initialData?.name ?? "");
   const [city, setCity] = useState(initialData?.city ?? "");
+  const [state, setState] = useState(initialData?.state ?? "");
+  const [pincode, setPincode] = useState(initialData?.pincode ?? "");
   const [locality, setLocality] = useState(initialData?.locality ?? "");
   const [address, setAddress] = useState(initialData?.address ?? "");
   const [description, setDescription] = useState(initialData?.description ?? "");
@@ -113,8 +121,12 @@ export function ListingForm({
 
   const handleSubmit = () => {
     setFormError("");
-    if (!name.trim() || !city.trim() || !locality.trim() || !address.trim()) {
-      setFormError("Please fill in PG name, city, locality and full address.");
+    if (!name.trim() || !city.trim() || !state.trim() || !locality.trim() || !address.trim()) {
+      setFormError("Please fill in PG name, city, state, locality and full address.");
+      return;
+    }
+    if (pincode.trim() && !/^\d{6}$/.test(pincode.trim())) {
+      setFormError("Pincode must be a 6-digit number.");
       return;
     }
     if (!ownerName.trim()) {
@@ -139,6 +151,8 @@ export function ListingForm({
     onSubmit({
       name: name.trim(),
       city: city.trim(),
+      state: state.trim(),
+      pincode: pincode.trim(),
       locality: locality.trim(),
       address: address.trim(),
       description:
@@ -195,18 +209,31 @@ export function ListingForm({
               <label className="block text-sm font-medium text-foreground mb-1">
                 City *
               </label>
-              <select
+              <input
+                type="text"
+                placeholder="e.g. Mysuru"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
+                list="famous-cities"
                 className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary"
-              >
-                <option value="">Select city</option>
-                {cities.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
+              />
+              <datalist id="famous-cities">
+                {famousCities.map((c) => (
+                  <option key={c} value={c} />
                 ))}
-              </select>
+              </datalist>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                State *
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Karnataka"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">
@@ -217,6 +244,20 @@ export function ListingForm({
                 placeholder="e.g. Koramangala"
                 value={locality}
                 onChange={(e) => setLocality(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Pincode
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                placeholder="e.g. 560034"
+                value={pincode}
+                onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
                 className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-alt text-foreground text-sm search-input focus:border-primary"
               />
             </div>

@@ -65,12 +65,16 @@ export function filterPGRecords(list: PGRecord[], filters?: PGFilters): PGRecord
     if (filters.featured) filtered = filtered.filter((l) => l.isFeatured);
     if (filters.city) {
       const c = filters.city.toLowerCase();
-      filtered = filtered.filter((l) => l.city.toLowerCase().includes(c));
+      filtered = filtered.filter((l) =>
+        `${l.city} ${l.state ?? ""} ${l.locality} ${l.address ?? ""} ${l.pincode ?? ""}`
+          .toLowerCase()
+          .includes(c)
+      );
     }
     if (filters.q) {
       const q = filters.q.toLowerCase();
       filtered = filtered.filter((l) =>
-        `${l.name} ${l.locality} ${l.city} ${l.address ?? ""}`
+        `${l.name} ${l.locality} ${l.city} ${l.state ?? ""} ${l.pincode ?? ""} ${l.address ?? ""}`
           .toLowerCase()
           .includes(q)
       );
@@ -98,6 +102,8 @@ export type CreatePGInput = Pick<
   PGRecord,
   | "name"
   | "city"
+  | "state"
+  | "pincode"
   | "locality"
   | "address"
   | "description"
@@ -108,8 +114,8 @@ export type CreatePGInput = Pick<
   | "images"
   | "videos"
   | "ownerName"
+  | "phone"
 > & {
-  phone?: string;
   lat?: number;
   lng?: number;
   sharing?: string[];

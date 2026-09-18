@@ -53,7 +53,7 @@ function SearchResults() {
     if (city) {
       const c = city.toLowerCase();
       filtered = filtered.filter((l) =>
-        `${l.name} ${l.locality} ${l.city} ${l.address ?? ""}`
+        `${l.name} ${l.locality} ${l.city} ${l.state ?? ""} ${l.pincode ?? ""} ${l.address ?? ""}`
           .toLowerCase()
           .includes(c)
       );
@@ -61,7 +61,7 @@ function SearchResults() {
     if (query) {
       const q = query.toLowerCase();
       filtered = filtered.filter((l) =>
-        `${l.name} ${l.locality} ${l.city} ${l.address ?? ""}`
+        `${l.name} ${l.locality} ${l.city} ${l.state ?? ""} ${l.pincode ?? ""} ${l.address ?? ""}`
           .toLowerCase()
           .includes(q)
       );

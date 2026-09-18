@@ -21,6 +21,8 @@ export async function POST(request: NextRequest) {
   const record = buildNewRecord({
     name: String(body.name || ""),
     city: String(body.city || ""),
+    state: String(body.state || ""),
+    pincode: String(body.pincode || ""),
     locality: String(body.locality || ""),
     address: String(body.address || ""),
     description: String(body.description || ""),

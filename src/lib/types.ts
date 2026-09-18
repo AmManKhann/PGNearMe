@@ -10,6 +10,8 @@ export interface PGRecord {
   id: string;
   name: string;
   city: string;
+  state: string;
+  pincode: string;
   locality: string;
   address: string;
   description: string;

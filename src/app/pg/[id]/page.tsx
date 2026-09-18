@@ -153,6 +153,8 @@ function PGContent({ id }: { id: string }) {
                     <div className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
                       {pg.address}
+                      {pg.state ? `, ${pg.state}` : ""}
+                      {pg.pincode ? ` ${pg.pincode}` : ""}
                     </div>
                   </div>
                 </div>
@@ -223,7 +225,7 @@ function PGContent({ id }: { id: string }) {
                 <MapEmbed
                   lat={lat}
                   lng={lng}
-                  label={pg.address}
+                  label={`${pg.address}${pg.state ? `, ${pg.state}` : ""}${pg.pincode ? ` ${pg.pincode}` : ""}`}
                 />
               </div>
             </div>

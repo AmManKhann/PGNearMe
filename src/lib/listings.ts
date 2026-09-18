@@ -4,6 +4,8 @@ export interface PGListing {
   id: string;
   name: string;
   city: string;
+  state?: string;
+  pincode?: string;
   locality: string;
   address: string;
   priceMin: number;
@@ -32,6 +34,8 @@ export function toPGListing(
     id: record.id,
     name: record.name,
     city: record.city,
+    state: record.state,
+    pincode: record.pincode,
     locality: record.locality,
     address: record.address,
     priceMin: record.priceMin,
