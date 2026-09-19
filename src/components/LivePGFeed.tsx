@@ -153,9 +153,16 @@ export function LivePGFeed() {
       return true;
     });
 
-    const mapped = filtered.map((r) =>
-      toPGListing(r, getDistanceKm(coords?.lat, coords?.lng, r.lat, r.lng))
-    );
+    const mapped = filtered.map((r) => {
+      const hasCoords = typeof r.lat === "number" && typeof r.lng === "number";
+      let distance: number | null = null;
+      if (coords) {
+        distance = getDistanceKm(coords.lat, coords.lng, r.lat, r.lng);
+      } else if (hasCoords) {
+        distance = 0;
+      }
+      return toPGListing(r, distance);
+    });
 
     switch (sort) {
       case "price-asc":
@@ -176,9 +183,7 @@ export function LivePGFeed() {
         break;
       case "nearest":
       default:
-        if (coords) {
-          mapped.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
-        }
+        mapped.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
         break;
     }
 
