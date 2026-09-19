@@ -172,8 +172,22 @@ function PGContent({ id }: { id: string }) {
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   {pg.rating > 0 && (
-                    <div className="flex items-center gap-1 bg-accent/10 px-3 py-1.5 rounded-lg">
-                      <Star className="w-5 h-5 text-accent fill-accent" />
+                    <div className="flex items-center gap-1.5 bg-accent/10 px-3 py-1.5 rounded-lg">
+                      <div className="relative inline-flex">
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <Star key={n} className="w-4 h-4 text-muted/40" />
+                          ))}
+                        </div>
+                        <div
+                          className="absolute left-0 top-0 overflow-hidden flex gap-0.5 pointer-events-none"
+                          style={{ width: `${Math.max(0, Math.min(100, (pg.rating / 5) * 100))}%` }}
+                        >
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <Star key={`fill-${n}`} className="w-4 h-4 text-accent fill-accent shrink-0" />
+                          ))}
+                        </div>
+                      </div>
                       <span className="font-bold text-foreground">{pg.rating}</span>
                       <span className="text-sm text-muted">({pg.reviewCount})</span>
                     </div>

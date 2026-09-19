@@ -20,6 +20,8 @@ function getAmenityIcon(amenity: string) {
 }
 
 export function PGCard({ listing }: { listing: PGListing }) {
+  const stars = Array.from({ length: 5 });
+  const ratingPct = Math.max(0, Math.min(100, (listing.rating / 5) * 100));
   return (
     <Link href={`/pg/${listing.id}`} className="block">
       <div className="bg-surface rounded-xl border border-border overflow-hidden card-hover group">
@@ -41,21 +43,15 @@ export function PGCard({ listing }: { listing: PGListing }) {
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-          {listing.isFeatured && (
-            <span className="absolute top-3 left-3 bg-accent/90 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-1 rounded-full neon-glow-pink">
-              Featured
-            </span>
-          )}
-          {listing.distance !== null && listing.distance !== undefined ? (
+          <span
+            className={`absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full ${genderBadgeColors[listing.gender]}`}
+          >
+            {listing.gender === "male" ? "Boys" : listing.gender === "female" ? "Girls" : "Co-ed"}
+          </span>
+          {listing.distance !== null && listing.distance !== undefined && (
             <span className="absolute top-14 right-3 bg-primary/90 backdrop-blur-sm text-foreground text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 border border-border">
               <Navigation className="w-3 h-3 text-secondary" />
               {formatDistance(listing.distance)}
-            </span>
-          ) : (
-            <span
-              className={`absolute top-14 right-3 text-xs font-semibold px-2.5 py-1 rounded-full ${genderBadgeColors[listing.gender]}`}
-            >
-              {listing.gender === "unisex" ? "Unisex" : listing.gender === "male" ? "Boys" : "Girls"}
             </span>
           )}
           <div className="absolute top-3 right-3">
@@ -90,12 +86,26 @@ export function PGCard({ listing }: { listing: PGListing }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 text-sm">
-              <Star className="w-4 h-4 text-accent fill-accent" />
-              <span className="font-medium">{listing.rating.toFixed(1)}</span>
+          <div className="flex items-center gap-1.5 text-sm">
+            <div className="relative inline-flex">
+              <div className="flex gap-0.5">
+                {stars.map((_, i) => (
+                  <Star key={i} className="w-4 h-4 text-muted/40" />
+                ))}
+              </div>
+              <div
+                className="absolute left-0 top-0 overflow-hidden flex gap-0.5 pointer-events-none"
+                style={{ width: `${ratingPct}%` }}
+              >
+                {stars.map((_, i) => (
+                  <Star key={`fill-${i}`} className="w-4 h-4 text-accent fill-accent shrink-0" />
+                ))}
+              </div>
             </div>
-            <span className="text-xs text-muted">({listing.reviewCount} reviews)</span>
+            <span className="font-medium">
+              {listing.rating > 0 ? listing.rating.toFixed(1) : "New"}
+            </span>
+            <span className="text-xs text-muted">({listing.reviewCount})</span>
             <span className="text-xs text-muted ml-auto">{listing.occupancy}</span>
           </div>
 
