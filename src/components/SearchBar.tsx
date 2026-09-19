@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Search, Navigation, Loader2, Clock } from "lucide-react";
+import { MapPin, Search, Navigation, Loader2, Clock, X } from "lucide-react";
 import {
   FOCUS_SEARCH_EVENT,
   FOCUS_PENDING_KEY,
@@ -159,8 +159,19 @@ export function SearchBar({
           aria-expanded={showDropdown}
           aria-controls="pgnearme-search-options"
           role="combobox"
-          className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-border bg-surface text-foreground text-sm search-input focus:border-primary"
+          className="w-full pl-9 pr-10 py-2.5 rounded-lg border border-border bg-surface text-foreground text-sm search-input focus:border-primary"
         />
+
+        {city && (
+          <button
+            type="button"
+            onClick={() => setCity("")}
+            aria-label="Clear search text"
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full bg-surface-alt text-muted hover:text-foreground hover:bg-border transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
 
         {showDropdown && (
           <div

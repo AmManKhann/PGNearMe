@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Building2 } from "lucide-react";
+import { RESET_HOME_EVENT } from "@/lib/searchFocus";
 
 interface BrandLogoProps {
   size?: "sm" | "lg";
@@ -12,6 +13,7 @@ export function BrandLogo({ size = "sm", className = "" }: BrandLogoProps) {
   return (
     <Link
       href="/"
+      onClick={() => window.dispatchEvent(new Event(RESET_HOME_EVENT))}
       aria-label="PGNearMe home"
       title="Go to homepage"
       className={`flex items-center gap-2 transition-opacity hover:opacity-85 ${className}`}

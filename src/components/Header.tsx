@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Home, Building2 } from "lucide-react";
+import { RESET_HOME_EVENT } from "@/lib/searchFocus";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrandLogo } from "@/components/BrandLogo";
 import { FindPGAction } from "@/components/FindPGAction";
@@ -32,6 +33,7 @@ export function Header() {
 
           <Link
             href="/"
+            onClick={() => window.dispatchEvent(new Event(RESET_HOME_EVENT))}
             className="md:hidden flex items-center gap-1.5 p-2 rounded-lg hover:bg-surface transition-colors text-foreground"
             aria-label="Go home"
           >

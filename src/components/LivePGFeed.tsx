@@ -17,7 +17,7 @@ import { SortDropdown, type SortValue } from "@/components/SortDropdown";
 import { toPGListing, type PGListing } from "@/lib/listings";
 import type { PGRecord } from "@/lib/types";
 import { getDistanceKm } from "@/lib/geo";
-import { CITY_SELECT_EVENT } from "@/lib/searchFocus";
+import { CITY_SELECT_EVENT, RESET_HOME_EVENT } from "@/lib/searchFocus";
 import { hasAmenity, hasFood, budgetOptions, sharingOptions, amenityOptions, genderOptions } from "@/lib/filterOptions";
 
 type LocationStatus = "locating" | "granted" | "denied" | "idle";
@@ -84,6 +84,21 @@ export function LivePGFeed() {
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
     );
+  }, []);
+
+  useEffect(() => {
+    const onResetHome = () => {
+      setQuery("");
+      setCoords(null);
+      setStatus("idle");
+      setFilters(emptyFilters);
+      setSort("nearest");
+      setFiltersOpen(false);
+      setBannerDismissed(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    window.addEventListener(RESET_HOME_EVENT, onResetHome);
+    return () => window.removeEventListener(RESET_HOME_EVENT, onResetHome);
   }, []);
 
   useEffect(() => {
