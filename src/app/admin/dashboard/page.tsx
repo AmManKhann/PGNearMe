@@ -81,6 +81,24 @@ export default function AdminDashboard() {
     } catch {}
   };
 
+  const handleDeleteReview = async (review: ReviewRow) => {
+    if (!window.confirm(`Delete review by "${review.name}" for ${listingName(review.pgId)}?`)) return;
+    try {
+      const res = await fetch(`/api/engagement?id=${encodeURIComponent(review.id)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => null);
+        window.alert(d?.error || "Failed to delete review.");
+        return;
+      }
+      setReviews((prev) => prev.filter((r) => r.id !== review.id));
+      setSelectedReview((prev) => (prev?.id === review.id ? null : prev));
+    } catch {
+      window.alert("Could not reach the server.");
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
     fetch("/api/pg")
@@ -637,13 +655,22 @@ export default function AdminDashboard() {
                             </p>
                           </div>
                         </div>
-                        <button
-                          onClick={() => setSelectedReview(review)}
-                          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-medium hover:bg-secondary/90 transition-all neon-glow-green shrink-0"
-                        >
-                          <Eye className="w-4 h-4" />
-                          Details
-                        </button>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={() => setSelectedReview(review)}
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-medium hover:bg-secondary/90 transition-all neon-glow-green shrink-0"
+                          >
+                            <Eye className="w-4 h-4" />
+                            Details
+                          </button>
+                          <button
+                            onClick={() => handleDeleteReview(review)}
+                            aria-label={`Delete review by ${review.name}`}
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 text-red-400 text-sm font-medium hover:bg-red-500/20 hover:text-red-300 transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -751,6 +778,15 @@ export default function AdminDashboard() {
                   })}
                 </p>
               </div>
+            </div>
+            <div className="p-5 border-t border-border">
+              <button
+                onClick={() => handleDeleteReview(selectedReview)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-red-500/10 text-red-400 text-sm font-semibold hover:bg-red-500/20 hover:text-red-300 transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Review
+              </button>
             </div>
           </div>
         </div>

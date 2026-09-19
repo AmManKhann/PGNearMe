@@ -164,9 +164,8 @@ function PGContent({ id }: { id: string }) {
                   <div className="flex items-center gap-3 text-sm text-muted">
                     <div className="flex items-center gap-1">
                       <MapPin className="w-4 h-4" />
-                      {pg.address}
-                      {pg.state ? `, ${pg.state}` : ""}
-                      {pg.pincode ? ` ${pg.pincode}` : ""}
+                      {pg.locality || pg.address}
+                      {pg.city && pg.locality ? `, ${pg.city}` : ""}
                     </div>
                   </div>
                 </div>

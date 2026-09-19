@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   loadEngagement,
   addStoredReview,
+  deleteStoredReview,
   type StoredReview,
 } from "@/lib/engagementDB";
 import { isValidEmail, isValidPhone } from "@/lib/auth";
@@ -77,4 +78,20 @@ export async function POST(request: NextRequest) {
 
   const review = await addStoredReview({ pgId, name, phone, email, rating, tags });
   return NextResponse.json({ review: publicReview(review) }, { status: 201 });
+}
+
+export async function DELETE(request: NextRequest) {
+  const role = request.cookies.get("pgnearme_role")?.value;
+  if (role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  const id = request.nextUrl.searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "Review id is missing." }, { status: 400 });
+  }
+  const removed = await deleteStoredReview(id);
+  if (!removed) {
+    return NextResponse.json({ error: "Review not found." }, { status: 404 });
+  }
+  return NextResponse.json({ ok: true });
 }

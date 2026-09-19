@@ -164,3 +164,12 @@ export async function adjustLikeCount(pgId: string, delta: number): Promise<numb
   await saveEngagement(data);
   return next;
 }
+
+export async function deleteStoredReview(reviewId: string): Promise<boolean> {
+  const data = await loadEngagement();
+  const before = data.reviews.length;
+  data.reviews = data.reviews.filter((r) => r.id !== reviewId);
+  if (data.reviews.length === before) return false;
+  await saveEngagement(data);
+  return true;
+}
