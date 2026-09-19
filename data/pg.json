@@ -112,5 +112,58 @@
     "occupancy": "Triple Sharing",
     "createdAt": "2026-09-18T23:32:09.073Z",
     "updatedAt": "2026-09-19T00:00:48.792Z"
+  },
+  {
+    "name": "Bb",
+    "city": "Sikar",
+    "state": "Rajasthan",
+    "pincode": "332001",
+    "locality": "Railway station",
+    "address": "Railway Station Road, Kalyan Circle, RailWay Colony, Sikar, Rajasthan, India - 332001",
+    "description": "Tttt",
+    "gender": "male",
+    "totalBeds": 20,
+    "amenities": [
+      "WiFi",
+      "Food (3 meals)",
+      "Food (2 meals)",
+      "AC Rooms",
+      "Laundry",
+      "Power Backup",
+      "Hot Water",
+      "CCTV",
+      "Gym",
+      "Housekeeping",
+      "Room Service",
+      "Parking"
+    ],
+    "pricing": [
+      {
+        "type": "Triple Sharing",
+        "price": 1000,
+        "meals": "0 meal"
+      }
+    ],
+    "images": [],
+    "videos": [],
+    "ownerName": "Bbbb",
+    "phone": "+919358922717",
+    "whatsapp": "+919358922717",
+    "mapsUrl": "https://www.google.com/maps/dir/26.935296,75.710464/Sikar+Junction,+Sakpura+Mohlla,+Sikar,+Rajasthan+332001/@27.2694653,75.1461289,104921m/data=!3m2!1e3!4b1!4m9!4m8!1m1!4e1!1m5!1m1!1s0x396ca4cc97b99fd9:0xdd33a3be6ec4aaa8!2m2!1d75.1533262!2d27.6163498?entry=ttu&g_ep=EgoyMDI2MDkxNi4wIKXMDSoASAFQAw%3D%3D",
+    "lat": 27.6163498,
+    "lng": 75.1533262,
+    "sharing": [],
+    "id": "pg-1789777030384-9y9g",
+    "status": "pending",
+    "isFeatured": false,
+    "priceMin": 1000,
+    "priceMax": 1000,
+    "rating": 0,
+    "reviewCount": 0,
+    "likes": 0,
+    "isVerified": false,
+    "occupancy": "Triple Sharing",
+    "createdAt": "2026-09-19T00:17:10.384Z",
+    "updatedAt": "2026-09-19T00:17:10.384Z"
   }
 ]
