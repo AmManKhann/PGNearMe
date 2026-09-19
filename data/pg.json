@@ -108,9 +108,9 @@
     "rating": 0,
     "reviewCount": 0,
     "likes": 0,
-    "isVerified": false,
+    "isVerified": true,
     "occupancy": "Triple Sharing",
     "createdAt": "2026-09-18T23:32:09.073Z",
-    "updatedAt": "2026-09-19T00:00:47.578Z"
+    "updatedAt": "2026-09-19T00:00:48.792Z"
   }
 ]
