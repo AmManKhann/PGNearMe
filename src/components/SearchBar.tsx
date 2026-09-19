@@ -101,11 +101,16 @@ export function SearchBar({
     );
   };
 
-  const normalized = city.trim().toLowerCase();
-  const suggestions = locationOptions
-    .filter((o) => o.toLowerCase().includes(normalized))
-    .slice(0, 6);
-  const showSuggestions = focused && suggestions.length > 0;
+  const query = city.trim();
+  const hasQuery = query.length > 0;
+  const normalized = query.toLowerCase();
+  const suggestions = hasQuery
+    ? locationOptions
+        .filter((o) => o.toLowerCase().includes(normalized))
+        .slice(0, 6)
+    : [];
+  const showSuggestions = focused && hasQuery && suggestions.length > 0;
+  const showCurrentOption = focused && !hasQuery;
 
   const selectSuggestion = (label: string) => {
     setCity(label);
@@ -137,27 +142,41 @@ export function SearchBar({
           className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-border bg-surface text-foreground text-sm search-input focus:border-primary"
         />
 
-        {showSuggestions && (
+        {(showSuggestions || showCurrentOption) && (
           <div
             id="pgnearme-location-suggestions"
             className="absolute left-0 right-0 top-full mt-2 rounded-xl bg-surface border border-border shadow-xl z-50 overflow-hidden"
           >
             <p className="px-4 py-2 text-xs font-medium text-muted uppercase border-b border-border">
-              Live locations
+              {showCurrentOption ? "Current location" : "Live locations"}
             </p>
             <ul className="py-1 max-h-64 overflow-y-auto">
-              {suggestions.map((option) => (
-                <li key={option}>
+              {showCurrentOption && (
+                <li>
                   <button
                     type="button"
-                    onClick={() => selectSuggestion(option)}
+                    onClick={useMyLocation}
                     className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-surface-alt hover:text-foreground transition-colors text-muted"
                   >
-                    <MapPin className="w-4 h-4 shrink-0 text-secondary" />
-                    {option}
+                    <Navigation className="w-4 h-4 shrink-0 text-secondary" />
+                    Use my current location
+                    {locating && <Loader2 className="w-4 h-4 animate-spin ml-auto" />}
                   </button>
                 </li>
-              ))}
+              )}
+              {showSuggestions &&
+                suggestions.map((option) => (
+                  <li key={option}>
+                    <button
+                      type="button"
+                      onClick={() => selectSuggestion(option)}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-surface-alt hover:text-foreground transition-colors text-muted"
+                    >
+                      <MapPin className="w-4 h-4 shrink-0 text-secondary" />
+                      {option}
+                    </button>
+                  </li>
+                ))}
             </ul>
           </div>
         )}
