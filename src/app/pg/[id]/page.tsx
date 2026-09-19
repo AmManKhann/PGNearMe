@@ -261,7 +261,7 @@ function PGContent({ id }: { id: string }) {
                   <Navigation className="w-5 h-5" />
                   Get Directions
                 </a>
-                <div className="mt-4 rounded-xl border border-border overflow-hidden">
+                <div className="relative mt-4 rounded-xl border border-border overflow-hidden">
                   <iframe
                     src={embedSrc}
                     title={`3D location view for ${pg.name}`}
@@ -269,6 +269,10 @@ function PGContent({ id }: { id: string }) {
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     allowFullScreen
+                  />
+                  <div
+                    aria-hidden="true"
+                    className="absolute bottom-0 left-0 w-48 h-8 bg-surface"
                   />
                 </div>
               </div>
