@@ -116,7 +116,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   "@id": "https://www.pg-near-me.com/#organization",
                   name: "PG Near Me",
                   url: "https://www.pg-near-me.com",
-                  logo: "https://www.pg-near-me.com/icon.png",
+                  logo: "https://www.pg-near-me.com/icon.svg",
                   contactPoint: {
                     "@type": "ContactPoint",
                     telephone: "+91-9351524550",
@@ -148,7 +148,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <div className="relative z-10 flex min-h-screen flex-col bg-background text-foreground">
             <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
               <Image
-                src="/icon.png"
+                src="/pgnearme-logo.png"
                 alt=""
                 fill
                 sizes="100vw"
