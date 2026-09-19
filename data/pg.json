@@ -156,7 +156,7 @@
     "lng": 75.1533262,
     "sharing": [],
     "id": "pg-1789777030384-9y9g",
-    "status": "pending",
+    "status": "approved",
     "isFeatured": false,
     "priceMin": 1000,
     "priceMax": 1000,
@@ -166,6 +166,6 @@
     "isVerified": false,
     "occupancy": "Triple Sharing",
     "createdAt": "2026-09-19T00:17:10.384Z",
-    "updatedAt": "2026-09-19T00:17:10.384Z"
+    "updatedAt": "2026-09-19T00:21:07.955Z"
   }
 ]
