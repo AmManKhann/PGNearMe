@@ -86,7 +86,7 @@ function PGContent({ id }: { id: string }) {
         <div className="text-center">
           <Building2 className="w-16 h-16 text-muted mx-auto mb-4" />
           <h1 className="text-xl font-semibold text-foreground mb-2">PG Not Found</h1>
-          <Link href="/search" className="text-primary hover:underline text-sm">
+          <Link href="/" className="text-primary hover:underline text-sm">
             Back to Search
           </Link>
         </div>
@@ -111,7 +111,7 @@ function PGContent({ id }: { id: string }) {
     <div className="bg-surface-alt min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Link
-          href="/search"
+          href="/"
           className="inline-flex items-center gap-1 text-sm text-muted hover:text-primary transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
