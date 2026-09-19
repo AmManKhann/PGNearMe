@@ -285,7 +285,6 @@ function PGContent({ id }: { id: string }) {
               </div>
             </div>
 
-            <ReviewSection entityId={id} seedReviews={[]} />
           </div>
 
           <div className="space-y-6">
@@ -374,6 +373,10 @@ function PGContent({ id }: { id: string }) {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="mt-8">
+          <ReviewSection entityId={id} seedReviews={[]} />
         </div>
       </div>
     </div>
