@@ -1,19 +1,6 @@
 {
   "reviews": [
     {
-      "id": "rev-1789807366391-n5ld",
-      "pgId": "pg-1789774329073-kwkt",
-      "name": "Sexa",
-      "phone": "6677667766",
-      "email": "yadavajit1055@gmail.com",
-      "rating": 5,
-      "tags": [
-        "Best PG with cleanliness",
-        "Affordable & Value for Money"
-      ],
-      "createdAt": "2026-09-19T08:42:46.391Z"
-    },
-    {
       "id": "rev-1789779666307-xyy2",
       "pgId": "pg-1789774329073-kwkt",
       "name": "Mohan Khan",
