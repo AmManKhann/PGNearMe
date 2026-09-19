@@ -97,14 +97,18 @@ function PGContent({ id }: { id: string }) {
   const fullAddress = [pg.address, pg.locality, pg.city, pg.state, pg.pincode]
     .filter((part) => part && String(part).trim())
     .join(", ");
-  const mapsLink = pg.mapsUrl?.trim()
-    ? pg.mapsUrl.startsWith("http")
-      ? pg.mapsUrl
-      : `https://${pg.mapsUrl}`
-    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+  const pgCoords = pg.lat && pg.lng ? { lat: pg.lat, lng: pg.lng } : null;
   const destCoords = pg.mapsUrl ? parseMapsCoords(pg.mapsUrl) : null;
-  const embedSrc = destCoords
-    ? `https://maps.google.com/maps?q=${destCoords.lat}%2C${destCoords.lng}&t=k&z=18&output=embed`
+  const locationCoords = destCoords ?? pgCoords;
+  const mapsLink = locationCoords
+    ? `https://www.google.com/maps/dir/?api=1&destination=${locationCoords.lat},${locationCoords.lng}`
+    : pg.mapsUrl?.trim()
+      ? pg.mapsUrl.startsWith("http")
+        ? pg.mapsUrl
+        : `https://${pg.mapsUrl}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+  const embedSrc = locationCoords
+    ? `https://maps.google.com/maps?q=${locationCoords.lat}%2C${locationCoords.lng}&t=k&z=18&output=embed`
     : `https://maps.google.com/maps?q=${encodeURIComponent(fullAddress)}&t=k&z=16&output=embed`;
 
   return (
@@ -265,14 +269,17 @@ function PGContent({ id }: { id: string }) {
                   <iframe
                     src={embedSrc}
                     title={`3D location view for ${pg.name}`}
-                    className="w-full h-64 md:h-72 border-0 map-frame-dark"
+                    className="w-full h-64 md:h-72 border-0 map-frame-dark pointer-events-none"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     allowFullScreen
                   />
-                  <div
-                    aria-hidden="true"
-                    className="absolute bottom-0 left-0 w-48 h-8 bg-surface"
+                  <a
+                    href={mapsLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Get directions to ${pg.name}`}
+                    className="absolute inset-0"
                   />
                 </div>
               </div>
