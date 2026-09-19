@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Star, PenLine, Tag, User, Phone, Mail, ShieldCheck } from "lucide-react";
+import { Star, PenLine, Tag, User, Phone, Mail, ShieldCheck, MessageSquare } from "lucide-react";
 import { useEngagement, useClientReady, type ReviewItem } from "@/lib/engagement";
 
 export const REVIEW_TAGS = [
@@ -89,6 +89,7 @@ export function ReviewSection({
   const [error, setError] = useState("");
   const [touched, setTouched] = useState(false);
   const [open, setOpen] = useState(false);
+  const [showReviews, setShowReviews] = useState(false);
 
   useEffect(() => {
     if (clientReady) hydrateListing(key);
@@ -131,6 +132,7 @@ export function ReviewSection({
       setEmail("");
       setTouched(false);
       setOpen(false);
+      setShowReviews(true);
       setJustAdded(true);
       setTimeout(() => setJustAdded(false), 3000);
     } else {
@@ -291,50 +293,62 @@ export function ReviewSection({
       )}
 
       {all.length > 0 ? (
-        <div className="space-y-4">
-          {all.map((review) => (
-            <div
-              key={review.id}
-              className="p-4 rounded-lg bg-surface-alt border border-border"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary-light">
-                    {review.author.charAt(0).toUpperCase()}
+        <div className="flex flex-col items-center">
+          <button
+            type="button"
+            onClick={() => setShowReviews((s) => !s)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-primary/40 bg-primary/5 hover:bg-primary/10 text-foreground text-sm font-medium transition-all"
+          >
+            <MessageSquare className="w-4 h-4 text-primary-light" />
+            {showReviews ? "Hide reviews" : `See Reviews (${all.length})`}
+          </button>
+          {showReviews && (
+            <div className="w-full space-y-4 mt-4">
+              {all.map((review) => (
+                <div
+                  key={review.id}
+                  className="p-4 rounded-lg bg-surface-alt border border-border"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary-light">
+                        {review.author.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="font-medium text-foreground text-sm">
+                        {review.author}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 text-accent fill-accent" />
+                      <span className="text-sm font-medium">{review.rating}</span>
+                      <span className="text-xs text-muted ml-1">{RATING_LABELS[review.rating]}</span>
+                    </div>
                   </div>
-                  <span className="font-medium text-foreground text-sm">
-                    {review.author}
-                  </span>
+                  {review.tags && review.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {review.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2.5 py-0.5 rounded-full bg-surface border border-border text-xs text-muted"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted/60">
+                    {Number.isNaN(new Date(review.date).getTime())
+                      ? review.date
+                      : new Date(review.date).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                  </p>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-accent fill-accent" />
-                  <span className="text-sm font-medium">{review.rating}</span>
-                  <span className="text-xs text-muted ml-1">{RATING_LABELS[review.rating]}</span>
-                </div>
-              </div>
-              {review.tags && review.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  {review.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2.5 py-0.5 rounded-full bg-surface border border-border text-xs text-muted"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <p className="text-xs text-muted/60">
-                {Number.isNaN(new Date(review.date).getTime())
-                  ? review.date
-                  : new Date(review.date).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-              </p>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       ) : (
         <p className="text-sm text-muted text-center py-6">
