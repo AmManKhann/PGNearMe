@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
 import path from "path";
 import {
   MAX_IMAGE_SIZE,
@@ -11,14 +10,7 @@ import {
   isAllowedImageExt,
   isAllowedVideoExt,
 } from "@/lib/media";
-
-const UPLOAD_DIR = path.join(process.cwd(), "data", "uploads");
-
-function ensureUploadDir(): void {
-  if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-  }
-}
+import { saveUpload } from "@/lib/uploadStore";
 
 function randomFilename(ext: string): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext}`;
@@ -104,9 +96,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    ensureUploadDir();
     const filename = randomFilename(ext);
-    fs.writeFileSync(path.join(UPLOAD_DIR, filename), buffer);
+    await saveUpload(filename, buffer);
 
     return NextResponse.json({
       url: getUploadUrl(filename),

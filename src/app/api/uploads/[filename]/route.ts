@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
 import path from "path";
 import { isAllowedImageExt, isAllowedVideoExt } from "@/lib/media";
-
-const UPLOAD_DIR = path.join(process.cwd(), "data", "uploads");
+import { loadUpload } from "@/lib/uploadStore";
 
 type RouteParams = Promise<{ filename: string }>;
 
@@ -30,13 +28,12 @@ export async function GET(_request: NextRequest, { params }: { params: RoutePara
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const filePath = path.join(UPLOAD_DIR, safe);
-  if (!fs.existsSync(filePath)) {
+  const buf = await loadUpload(safe);
+  if (!buf) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const buf = fs.readFileSync(filePath);
-  return new NextResponse(buf, {
+  return new NextResponse(new Uint8Array(buf), {
     headers: {
       "Content-Type": mime,
       "Cache-Control": "public, max-age=31536000, immutable",
