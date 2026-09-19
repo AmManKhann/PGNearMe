@@ -49,8 +49,8 @@ export function PGCard({ listing }: { listing: PGListing }) {
             {listing.gender === "male" ? "Boys" : listing.gender === "female" ? "Girls" : "Co-ed"}
           </span>
           {listing.distance !== null && listing.distance !== undefined && (
-            <span className="absolute top-14 right-3 bg-primary/90 backdrop-blur-sm text-foreground text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 border border-border">
-              <Navigation className="w-3 h-3 text-secondary" />
+            <span className="absolute top-14 right-3 bg-black/80 text-white text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 border border-white/20">
+              <Navigation className="w-3 h-3 text-white" />
               {formatDistance(listing.distance)}
             </span>
           )}

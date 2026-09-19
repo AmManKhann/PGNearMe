@@ -88,6 +88,7 @@ export function ReviewSection({
   const [justAdded, setJustAdded] = useState(false);
   const [error, setError] = useState("");
   const [touched, setTouched] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (clientReady) hydrateListing(key);
@@ -129,6 +130,7 @@ export function ReviewSection({
       setPhone("");
       setEmail("");
       setTouched(false);
+      setOpen(false);
       setJustAdded(true);
       setTimeout(() => setJustAdded(false), 3000);
     } else {
@@ -173,10 +175,30 @@ export function ReviewSection({
         </div>
       ) : (
         <div className="mb-6 p-4 rounded-lg bg-surface-alt border border-border">
-        <p className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+        {!open ? (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="w-full flex items-center gap-2 py-2.5 px-4 rounded-lg border border-primary/40 bg-primary/5 hover:bg-primary/10 text-foreground font-medium transition-all"
+          >
+            <PenLine className="w-4 h-4 text-primary-light" />
+            Write a review
+          </button>
+        ) : (
+          <>
+        <div className="flex items-center justify-between mb-3">
+        <p className="text-sm font-medium text-foreground flex items-center gap-2">
           <PenLine className="w-4 h-4 text-primary-light" />
           Rate this place
         </p>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="text-xs text-muted hover:text-foreground transition-colors"
+        >
+          Cancel
+        </button>
+        </div>
         <div className={`mb-3 ${touched && rating === 0 ? "opacity-60" : ""}`}>
           <div className="flex items-center gap-3 flex-wrap">
             <StarRating value={rating} onChange={(n) => { setRating(n); setTouched(true); }} />
@@ -263,6 +285,8 @@ export function ReviewSection({
             {submitting ? "Submitting…" : "Submit Review"}
           </button>
         </div>
+          </>
+        )}
       </div>
       )}
 
