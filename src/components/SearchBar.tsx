@@ -2,20 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Search, Navigation, Loader2 } from "lucide-react";
+import { MapPin, Search, Navigation, Loader2, Clock } from "lucide-react";
 import {
   FOCUS_SEARCH_EVENT,
   FOCUS_PENDING_KEY,
 } from "@/lib/searchFocus";
 
+const RECENT_KEY = "pgnearme_recent_searches";
+
 export function SearchBar({
   onSearch,
-  locationOptions = [],
   showNearMe = true,
   className = "",
 }: {
   onSearch?: (opts: { city: string; lat?: number; lng?: number }) => void;
-  locationOptions?: string[];
   showNearMe?: boolean;
   className?: string;
 } = {}) {
@@ -26,6 +26,21 @@ export function SearchBar({
   const [locating, setLocating] = useState(false);
   const [locationCoords, setLocationCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [focused, setFocused] = useState(false);
+  const [recents, setRecents] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = window.localStorage.getItem(RECENT_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.map(String).filter(Boolean).slice(0, 5);
+        }
+      }
+    } catch {
+      /* storage unavailable */
+    }
+    return [];
+  });
 
   useEffect(() => {
     const focusInput = () => {
@@ -57,10 +72,23 @@ export function SearchBar({
     return () => window.removeEventListener(FOCUS_SEARCH_EVENT, handler);
   }, []);
 
+  const saveRecent = (term: string) => {
+    const t = term.trim();
+    if (!t) return;
+    const next = [t, ...recents.filter((r) => r.toLowerCase() !== t.toLowerCase())].slice(0, 5);
+    setRecents(next);
+    try {
+      window.localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+    } catch {
+      /* storage unavailable */
+    }
+  };
+
   const handleSearch = (lat?: number, lng?: number, cityOverride?: string) => {
     const finalCity = cityOverride !== undefined ? cityOverride : city;
     const finalLat = lat !== undefined ? lat : locationCoords?.lat;
     const finalLng = lng !== undefined ? lng : locationCoords?.lng;
+    saveRecent(finalCity);
 
     if (onSearch) {
       onSearch({ city: finalCity, lat: finalLat, lng: finalLng });
@@ -87,6 +115,7 @@ export function SearchBar({
         const { latitude, longitude } = position.coords;
         setLocationCoords({ lat: latitude, lng: longitude });
         setLocating(false);
+        setFocused(false);
         handleSearch(latitude, longitude);
       },
       (err) => {
@@ -101,22 +130,13 @@ export function SearchBar({
     );
   };
 
-  const query = city.trim();
-  const hasQuery = query.length > 0;
-  const normalized = query.toLowerCase();
-  const suggestions = hasQuery
-    ? locationOptions
-        .filter((o) => o.toLowerCase().includes(normalized))
-        .slice(0, 6)
-    : [];
-  const showSuggestions = focused && hasQuery && suggestions.length > 0;
-  const showCurrentOption = focused && !hasQuery;
-
-  const selectSuggestion = (label: string) => {
-    setCity(label);
+  const pickRecent = (term: string) => {
+    setCity(term);
     setFocused(false);
-    handleSearch(undefined, undefined, label);
+    handleSearch(undefined, undefined, term);
   };
+
+  const showDropdown = focused;
 
   return (
     <div
@@ -136,48 +156,54 @@ export function SearchBar({
           onBlur={() => setTimeout(() => setFocused(false), 120)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           aria-label="Search by city or locality"
-          aria-expanded={showSuggestions}
-          aria-controls="pgnearme-location-suggestions"
+          aria-expanded={showDropdown}
+          aria-controls="pgnearme-search-options"
           role="combobox"
           className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-border bg-surface text-foreground text-sm search-input focus:border-primary"
         />
 
-        {(showSuggestions || showCurrentOption) && (
+        {showDropdown && (
           <div
-            id="pgnearme-location-suggestions"
+            id="pgnearme-search-options"
             className="absolute left-0 right-0 top-full mt-2 rounded-xl bg-surface border border-border shadow-xl z-50 overflow-hidden"
           >
             <p className="px-4 py-2 text-xs font-medium text-muted uppercase border-b border-border">
-              {showCurrentOption ? "Current location" : "Live locations"}
+              Current location
             </p>
             <ul className="py-1 max-h-64 overflow-y-auto">
-              {showCurrentOption && (
-                <li>
-                  <button
-                    type="button"
-                    onClick={useMyLocation}
-                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-surface-alt hover:text-foreground transition-colors text-muted"
-                  >
-                    <Navigation className="w-4 h-4 shrink-0 text-secondary" />
-                    Use my current location
-                    {locating && <Loader2 className="w-4 h-4 animate-spin ml-auto" />}
-                  </button>
-                </li>
-              )}
-              {showSuggestions &&
-                suggestions.map((option) => (
-                  <li key={option}>
-                    <button
-                      type="button"
-                      onClick={() => selectSuggestion(option)}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-surface-alt hover:text-foreground transition-colors text-muted"
-                    >
-                      <MapPin className="w-4 h-4 shrink-0 text-secondary" />
-                      {option}
-                    </button>
-                  </li>
-                ))}
+              <li>
+                <button
+                  type="button"
+                  onClick={useMyLocation}
+                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-surface-alt hover:text-foreground transition-colors text-muted"
+                >
+                  <Navigation className="w-4 h-4 shrink-0 text-secondary" />
+                  Use my current location
+                  {locating && <Loader2 className="w-4 h-4 animate-spin ml-auto" />}
+                </button>
+              </li>
             </ul>
+            {recents.length > 0 && (
+              <>
+                <p className="px-4 py-2 text-xs font-medium text-muted uppercase border-y border-border">
+                  Recent searches
+                </p>
+                <ul className="py-1 max-h-64 overflow-y-auto">
+                  {recents.map((term) => (
+                    <li key={term}>
+                      <button
+                        type="button"
+                        onClick={() => pickRecent(term)}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-surface-alt hover:text-foreground transition-colors text-muted"
+                      >
+                        <Clock className="w-4 h-4 shrink-0 text-secondary" />
+                        {term}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
         )}
       </div>

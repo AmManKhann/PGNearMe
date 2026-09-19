@@ -97,19 +97,6 @@ export function LivePGFeed() {
     return () => window.removeEventListener(CITY_SELECT_EVENT, onCitySelect);
   }, []);
 
-  const locationOptions = useMemo(() => {
-    const seen = new Set<string>();
-    const options: string[] = [];
-    for (const r of records) {
-      const label = `${r.locality}, ${r.city}`.trim();
-      if (label && label !== "," && !seen.has(label)) {
-        seen.add(label);
-        options.push(label);
-      }
-    }
-    return options;
-  }, [records]);
-
   const activeFilterCount =
     (filters.verified ? 1 : 0) +
     (filters.budget ? 1 : 0) +
@@ -177,6 +164,23 @@ export function LivePGFeed() {
     return mapped;
   }, [records, query, filters, sort, coords]);
 
+  const nearestFallback = useMemo<PGListing[]>(() => {
+    const mapped = records.map((r) => {
+      const hasCoords = typeof r.lat === "number" && typeof r.lng === "number";
+      let distance: number | null = null;
+      if (coords) {
+        distance = getDistanceKm(coords.lat, coords.lng, r.lat, r.lng);
+      } else if (hasCoords) {
+        distance = 0;
+      }
+      return toPGListing(r, distance);
+    });
+    return mapped
+      .filter((l) => l.id !== "")
+      .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
+      .slice(0, 6);
+  }, [records, coords]);
+
   const handleSearch = ({
     city,
     lat,
@@ -236,7 +240,6 @@ export function LivePGFeed() {
         <div className="min-w-0">
           <SearchBar
             onSearch={handleSearch}
-            locationOptions={locationOptions}
             showNearMe={false}
             className="max-w-none"
           />
@@ -350,23 +353,34 @@ export function LivePGFeed() {
           ))}
         </div>
       ) : listings.length === 0 ? (
-        <div className="bg-surface rounded-xl border border-border p-10 text-center">
-          <MapPin className="w-12 h-12 text-muted mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-1">No PGs found</h3>
-          <p className="text-sm text-muted max-w-md mx-auto mb-4">
-            We couldn&apos;t find any PGs matching your search or filters. Try adjusting them.
-          </p>
-          {(activeFilterCount > 0 || query) && (
-            <button
-              onClick={() => {
-                setFilters(emptyFilters);
-                setQuery("");
-              }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-light transition-all"
-            >
-              <RotateCcw className="w-4 h-4" />
-              Clear search & filters
-            </button>
+        <div>
+          <div className="bg-surface rounded-xl border border-border p-8 text-center mb-6">
+            <MapPin className="w-12 h-12 text-muted mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-1">No exact matches found</h3>
+            <p className="text-sm text-muted max-w-md mx-auto mb-4">
+              {query
+                ? `No PGs matched "${query}". Showing the nearest PGs instead:`
+                : "No PGs matched your filters. Showing the nearest PGs instead:"}
+            </p>
+            {(activeFilterCount > 0 || query) && (
+              <button
+                onClick={() => {
+                  setFilters(emptyFilters);
+                  setQuery("");
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-light transition-all"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Clear search & filters
+              </button>
+            )}
+          </div>
+          {nearestFallback.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {nearestFallback.map((listing) => (
+                <PGCard key={listing.id} listing={listing} />
+              ))}
+            </div>
           )}
         </div>
       ) : (

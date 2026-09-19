@@ -105,6 +105,16 @@ function SearchResults() {
     return filtered;
   }, [city, query, gender, priceRange, budget, food, verifiedOnly, userLat, userLng, sort, sharing, amenities, records]);
 
+  const nearestFallback = useMemo(() => {
+    return records
+      .map((l) => ({
+        ...toPGListing(l),
+        distance: getDistanceKm(userLat, userLng, l.lat, l.lng),
+      }))
+      .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
+      .slice(0, 6);
+  }, [records, userLat, userLng]);
+
   const updateSort = (value: SortValue) => {
     const sp = new URLSearchParams(searchParams.toString());
     if (value === "boys") {
@@ -163,14 +173,23 @@ function SearchResults() {
               ))}
             </div>
           ) : (
-            <div className="flex-1 text-center py-20">
-              <div className="w-16 h-16 rounded-full bg-surface border border-border flex items-center justify-center mx-auto mb-4 animate-float">
-                <ArrowUpDown className="w-8 h-8 text-primary/50" />
+            <div className="flex-1">
+              <div className="text-center py-12">
+                <div className="w-16 h-16 rounded-full bg-surface border border-border flex items-center justify-center mx-auto mb-4 animate-float">
+                  <ArrowUpDown className="w-8 h-8 text-primary/50" />
+                </div>
+                <h2 className="text-xl font-semibold text-foreground mb-2">No exact matches found</h2>
+                <p className="text-muted max-w-md mx-auto">
+                  Showing the nearest PGs instead:
+                </p>
               </div>
-              <h2 className="text-xl font-semibold text-foreground mb-2">No PGs Found</h2>
-              <p className="text-muted max-w-md mx-auto">
-                Try adjusting your filters or search in a different city.
-              </p>
+              {nearestFallback.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {nearestFallback.map((listing) => (
+                    <PGCard key={listing.id} listing={listing} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
