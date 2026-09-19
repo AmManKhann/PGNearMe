@@ -89,8 +89,6 @@ export function LivePGFeed() {
   useEffect(() => {
     const onResetHome = () => {
       setQuery("");
-      setCoords(null);
-      setStatus("idle");
       setFilters(emptyFilters);
       setSort("nearest");
       setFiltersOpen(false);
