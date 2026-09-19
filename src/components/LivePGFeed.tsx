@@ -209,6 +209,9 @@ export function LivePGFeed() {
       setStatus("granted");
       setSort("nearest");
     }
+    requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   };
 
   const showBanner =

@@ -136,6 +136,11 @@ export function SearchBar({
     handleSearch(undefined, undefined, term);
   };
 
+  const handleClear = () => {
+    setCity("");
+    inputRef.current?.focus();
+  };
+
   const showDropdown = focused;
 
   return (
@@ -165,7 +170,7 @@ export function SearchBar({
         {city && (
           <button
             type="button"
-            onClick={() => setCity("")}
+            onClick={handleClear}
             aria-label="Clear search text"
             className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full bg-surface-alt text-muted hover:text-foreground hover:bg-border transition-colors"
           >
@@ -185,6 +190,7 @@ export function SearchBar({
               <li>
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={useMyLocation}
                   className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-surface-alt hover:text-foreground transition-colors text-muted"
                 >
@@ -204,6 +210,7 @@ export function SearchBar({
                     <li key={term}>
                       <button
                         type="button"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => pickRecent(term)}
                         className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-surface-alt hover:text-foreground transition-colors text-muted"
                       >
