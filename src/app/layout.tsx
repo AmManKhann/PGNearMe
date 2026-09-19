@@ -77,9 +77,6 @@ export const metadata: Metadata = {
     description:
       "Find boys PG, girls PG, hostels and PG accommodation near you in India. No brokerage, direct owner contact.",
   },
-  icons: {
-    icon: "/pgnearme-logo.png",
-  },
   robots: {
     index: true,
     follow: true,
@@ -119,7 +116,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   "@id": "https://www.pg-near-me.com/#organization",
                   name: "PG Near Me",
                   url: "https://www.pg-near-me.com",
-                  logo: "https://www.pg-near-me.com/pgnearme-logo.png",
+                  logo: "https://www.pg-near-me.com/icon.svg",
                   contactPoint: {
                     "@type": "ContactPoint",
                     telephone: "+91-9351524550",
@@ -153,7 +150,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           className="fixed inset-0 z-40 pointer-events-none overflow-hidden"
         >
           <Image
-            src="/pgnearme-logo.png"
+            src="/icon.svg"
             alt=""
             fill
             sizes="100vw"
