@@ -29,7 +29,7 @@ function SearchResults() {
   const userLng = parseFloat(searchParams.get("lng") ?? "");
   const hasLocation = !isNaN(userLat) && !isNaN(userLng);
   const sortParam = searchParams.get("sort") as SortValue | null;
-  const sort: SortValue = sortParam ?? (hasLocation ? "nearest" : "newest");
+  const sort: SortValue = sortParam ?? "nearest";
 
   const [records, setRecords] = useState<PGRecord[]>([]);
 
@@ -96,28 +96,27 @@ function SearchResults() {
 
     if (sort === "price-asc") {
       filtered.sort((a, b) => a.priceMin - b.priceMin);
-    } else if (sort === "price-desc") {
-      filtered.sort((a, b) => b.priceMin - a.priceMin);
-    } else if (sort === "rating") {
-      filtered.sort((a, b) => b.rating - a.rating);
-    } else if (sort === "newest") {
-      const createdById: Record<string, string> = {};
-      for (const r of records) createdById[r.id] = r.createdAt;
-      filtered.sort(
-        (a, b) =>
-          new Date(createdById[b.id] ?? 0).getTime() -
-          new Date(createdById[a.id] ?? 0).getTime()
-      );
-    } else if (hasLocation) {
+    } else {
       filtered.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
     }
 
     return filtered;
-  }, [city, query, gender, priceRange, budget, food, verifiedOnly, userLat, userLng, hasLocation, sort, sharing, amenities, records]);
+  }, [city, query, gender, priceRange, budget, food, verifiedOnly, userLat, userLng, sort, sharing, amenities, records]);
 
   const updateSort = (value: SortValue) => {
     const sp = new URLSearchParams(searchParams.toString());
-    sp.set("sort", value);
+    if (value === "boys") {
+      sp.set("gender", "male");
+      sp.set("sort", "nearest");
+    } else if (value === "girls") {
+      sp.set("gender", "female");
+      sp.set("sort", "nearest");
+    } else if (value === "coed") {
+      sp.set("gender", "unisex");
+      sp.set("sort", "nearest");
+    } else {
+      sp.set("sort", value);
+    }
     router.replace(`/search?${sp.toString()}`, { scroll: false });
   };
 
@@ -145,7 +144,7 @@ function SearchResults() {
               )}
             </p>
           </div>
-          <SortDropdown value={sort} onChange={updateSort} hasLocation={hasLocation} />
+          <SortDropdown value={sort} onChange={updateSort} />
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 lg:items-start">

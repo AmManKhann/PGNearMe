@@ -1,35 +1,38 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpDown, Check, Navigation, Star, Clock, X } from "lucide-react";
+import { ArrowUpDown, Check, Navigation, X } from "lucide-react";
 
-export type SortValue = "nearest" | "price-asc" | "price-desc" | "rating" | "newest";
+export type SortValue =
+  | "nearest"
+  | "price-asc"
+  | "boys"
+  | "girls"
+  | "coed";
 
 export const SORT_LABELS: Record<SortValue, string> = {
   nearest: "Nearest First",
   "price-asc": "Price: Low to High",
-  "price-desc": "Price: High to Low",
-  rating: "Highest Rated",
-  newest: "Newest Listings First",
+  boys: "Boys Only",
+  girls: "Girls Only",
+  coed: "Co-ed (Boys & Girls)",
 };
 
-const options: { value: SortValue; icon: typeof Star; needsLocation?: boolean }[] = [
-  { value: "nearest", icon: Navigation, needsLocation: true },
+const options: { value: SortValue; icon: typeof Navigation }[] = [
+  { value: "nearest", icon: Navigation },
   { value: "price-asc", icon: ArrowUpDown },
-  { value: "price-desc", icon: ArrowUpDown },
-  { value: "rating", icon: Star },
-  { value: "newest", icon: Clock },
+  { value: "boys", icon: Navigation },
+  { value: "girls", icon: Navigation },
+  { value: "coed", icon: Navigation },
 ];
 
 export function SortDropdown({
   value,
   onChange,
-  hasLocation = false,
   className = "",
 }: {
   value: SortValue;
   onChange: (value: SortValue) => void;
-  hasLocation?: boolean;
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -57,8 +60,7 @@ export function SortDropdown({
 
   const optionsList = (
     <ul role="listbox" className="py-1">
-      {options.map(({ value: optValue, icon: Icon, needsLocation }) => {
-        const disabled = needsLocation && !hasLocation;
+      {options.map(({ value: optValue, icon: Icon }) => {
         const selected = value === optValue;
         return (
           <li key={optValue}>
@@ -66,19 +68,16 @@ export function SortDropdown({
               type="button"
               role="option"
               aria-selected={selected}
-              disabled={disabled}
               onClick={() => select(optValue)}
               className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left transition-colors ${
-                disabled
-                  ? "text-muted/50 cursor-not-allowed"
-                  : selected
+                selected
                   ? "bg-primary/10 text-foreground font-semibold"
                   : "text-muted hover:bg-surface-alt hover:text-foreground"
               }`}
             >
               <Icon className="w-4 h-4 shrink-0" />
               <span className="flex-1">{SORT_LABELS[optValue]}</span>
-              {selected && !disabled && <Check className="w-4 h-4 text-secondary" />}
+              {selected && <Check className="w-4 h-4 text-secondary" />}
             </button>
           </li>
         );
@@ -111,7 +110,7 @@ export function SortDropdown({
         <div className="hidden sm:block">
           <div className="absolute right-0 z-50 mt-2 w-60 bg-surface border border-border rounded-xl shadow-xl origin-top-right overflow-hidden">
             <p className="px-4 py-2 text-xs font-medium text-muted uppercase border-b border-border">
-              Sort listings by
+              Sort &amp; filter listings
             </p>
             {optionsList}
           </div>
@@ -128,7 +127,7 @@ export function SortDropdown({
           <div className="absolute inset-x-0 bottom-0 bg-surface rounded-t-2xl border-t border-border p-5 pb-8">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-muted uppercase">
-                Sort listings by
+                Sort &amp; filter listings
               </p>
               <button
                 type="button"

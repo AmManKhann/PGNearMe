@@ -13,6 +13,7 @@ import {
   budgetOptions,
   sharingOptions,
   amenityOptions,
+  genderOptions,
 } from "@/lib/filterOptions";
 
 export function SearchFilters() {
@@ -23,12 +24,13 @@ export function SearchFilters() {
   const budget = searchParams.get("budget") ?? "";
   const [budgetDraft, setBudgetDraft] = useState(budget);
   const sharing = (searchParams.get("sharing") ?? "").split(",").filter(Boolean);
+  const gender = searchParams.get("gender") ?? "";
   const amenities = (searchParams.get("amenities") ?? "").split(",").filter(Boolean);
   const food = searchParams.get("food") === "1";
   const verified = searchParams.get("verified") === "1";
 
   const activeCount =
-    (budget ? 1 : 0) + sharing.length + amenities.length + (food ? 1 : 0) + (verified ? 1 : 0);
+    (budget ? 1 : 0) + sharing.length + amenities.length + (food ? 1 : 0) + (verified ? 1 : 0) + (gender ? 1 : 0);
 
   const push = (sp: URLSearchParams) => {
     router.replace(`/search?${sp.toString()}`, { scroll: false });
@@ -75,7 +77,7 @@ export function SearchFilters() {
 
   const resetAll = () => {
     const sp = new URLSearchParams(searchParams.toString());
-    ["budget", "sharing", "amenities", "food", "verified"].forEach((k) => sp.delete(k));
+    ["budget", "sharing", "amenities", "food", "verified", "gender"].forEach((k) => sp.delete(k));
     push(sp);
   };
 
@@ -144,6 +146,39 @@ export function SearchFilters() {
               {label}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* PG Type / Gender */}
+      <div className="mb-6">
+        <p className="text-sm font-medium text-foreground mb-2.5">PG Type / Gender</p>
+        <div className="space-y-1">
+          {genderOptions.map(({ value, label }) => {
+            const checked = gender === value;
+            return (
+              <button
+                key={value}
+                onClick={() => toggleSingle("gender", checked ? "" : value)}
+                className={`w-full flex items-center justify-between gap-2.5 px-2.5 py-1.5 rounded-lg text-sm border transition-all ${
+                  checked
+                    ? "bg-primary/10 border-primary/40 text-foreground"
+                    : "border-transparent text-muted hover:text-foreground hover:bg-surface"
+                }`}
+              >
+                <span className="flex items-center gap-2.5">
+                  <span
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                      checked ? "border-primary" : "border-muted/50"
+                    }`}
+                  >
+                    {checked && <span className="w-2 h-2 rounded-full bg-primary" />}
+                  </span>
+                  <span className="text-left">{label}</span>
+                </span>
+                {checked && <Check className="w-4 h-4 text-secondary" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 

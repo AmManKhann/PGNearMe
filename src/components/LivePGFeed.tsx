@@ -18,7 +18,7 @@ import { toPGListing, type PGListing } from "@/lib/listings";
 import type { PGRecord } from "@/lib/types";
 import { getDistanceKm } from "@/lib/geo";
 import { CITY_SELECT_EVENT } from "@/lib/searchFocus";
-import { hasAmenity, hasFood, budgetOptions, sharingOptions, amenityOptions } from "@/lib/filterOptions";
+import { hasAmenity, hasFood, budgetOptions, sharingOptions, amenityOptions, genderOptions } from "@/lib/filterOptions";
 
 type LocationStatus = "locating" | "granted" | "denied" | "idle";
 
@@ -28,6 +28,7 @@ interface Filters {
   sharing: string[];
   food: boolean;
   amenities: string[];
+  gender: string;
 }
 
 const emptyFilters: Filters = {
@@ -36,6 +37,7 @@ const emptyFilters: Filters = {
   sharing: [],
   food: false,
   amenities: [],
+  gender: "",
 };
 
 const geolocationSupported =
@@ -75,7 +77,6 @@ export function LivePGFeed() {
       (position) => {
         setCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
         setStatus("granted");
-        setSort((prev) => (prev === "newest" ? "nearest" : prev));
       },
       () => {
         setStatus("denied");
@@ -96,12 +97,6 @@ export function LivePGFeed() {
     return () => window.removeEventListener(CITY_SELECT_EVENT, onCitySelect);
   }, []);
 
-  const createdAtById = useMemo(() => {
-    const map: Record<string, string> = {};
-    for (const r of records) map[r.id] = r.createdAt;
-    return map;
-  }, [records]);
-
   const locationOptions = useMemo(() => {
     const seen = new Set<string>();
     const options: string[] = [];
@@ -120,7 +115,8 @@ export function LivePGFeed() {
     (filters.budget ? 1 : 0) +
     filters.sharing.length +
     (filters.food ? 1 : 0) +
-    filters.amenities.length;
+    filters.amenities.length +
+    (filters.gender ? 1 : 0);
 
   const listings = useMemo<PGListing[]>(() => {
     const q = query.trim().toLowerCase();
@@ -137,6 +133,7 @@ export function LivePGFeed() {
       }
       if (filters.verified && !r.isVerified) return false;
       if (budget !== null && r.priceMin > budget) return false;
+      if (filters.gender && r.gender !== filters.gender) return false;
       if (filters.sharing.length > 0 && !(r.sharing || []).some((s) => filters.sharing.includes(s))) {
         return false;
       }
@@ -168,19 +165,6 @@ export function LivePGFeed() {
       case "price-asc":
         mapped.sort((a, b) => a.priceMin - b.priceMin);
         break;
-      case "price-desc":
-        mapped.sort((a, b) => b.priceMin - a.priceMin);
-        break;
-      case "rating":
-        mapped.sort((a, b) => b.rating - a.rating);
-        break;
-      case "newest":
-        mapped.sort(
-          (a, b) =>
-            new Date(createdAtById[b.id] ?? 0).getTime() -
-            new Date(createdAtById[a.id] ?? 0).getTime()
-        );
-        break;
       case "nearest":
       default:
         mapped.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
@@ -188,7 +172,7 @@ export function LivePGFeed() {
     }
 
     return mapped;
-  }, [records, query, filters, sort, coords, createdAtById]);
+  }, [records, query, filters, sort, coords]);
 
   const handleSearch = ({
     city,
@@ -233,6 +217,13 @@ export function LivePGFeed() {
         : [...current, value];
       return { ...prev, [key]: next };
     });
+  };
+
+  const handleSortChange = (value: SortValue) => {
+    if (value === "boys") setFilters((p) => ({ ...p, gender: "male" }));
+    else if (value === "girls") setFilters((p) => ({ ...p, gender: "female" }));
+    else if (value === "coed") setFilters((p) => ({ ...p, gender: "unisex" }));
+    setSort(value);
   };
 
   return (
@@ -280,7 +271,7 @@ export function LivePGFeed() {
               </span>
             )}
           </button>
-          <SortDropdown value={sort} onChange={setSort} hasLocation={!!coords} className="w-full" />
+          <SortDropdown value={sort} onChange={handleSortChange} className="w-full" />
         </div>
       </div>
 
@@ -441,6 +432,41 @@ export function LivePGFeed() {
                     />
                   </span>
                 </button>
+
+                {/* Gender */}
+                <div className="mb-6">
+                  <p className="text-sm font-medium text-foreground mb-2.5">PG Type / Gender</p>
+                  <div className="space-y-1">
+                    {genderOptions.map(({ value, label }) => {
+                      const checked = filters.gender === value;
+                      return (
+                        <button
+                          key={value}
+                          onClick={() =>
+                            setFilters((p) => ({ ...p, gender: checked ? "" : value }))
+                          }
+                          className={`w-full flex items-center justify-between gap-2.5 px-2.5 py-1.5 rounded-lg text-sm border transition-all ${
+                            checked
+                              ? "bg-primary/10 border-primary/40 text-foreground"
+                              : "border-transparent text-muted hover:text-foreground hover:bg-surface"
+                          }`}
+                        >
+                          <span className="flex items-center gap-2.5">
+                            <span
+                              className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                                checked ? "border-primary" : "border-muted/50"
+                              }`}
+                            >
+                              {checked && <span className="w-2 h-2 rounded-full bg-primary" />}
+                            </span>
+                            <span className="text-left">{label}</span>
+                          </span>
+                          {checked && <Check className="w-4 h-4 text-secondary" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
                 {/* Budget */}
                 <div className="mb-6">

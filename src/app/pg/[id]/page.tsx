@@ -7,6 +7,7 @@ import type { PGRecord } from "@/lib/types";
 import { LikeButton } from "@/components/LikeButton";
 import { ReviewSection } from "@/components/ReviewSection";
 import { ImageGallery } from "@/components/ImageGallery";
+import { parseMapsCoords } from "@/lib/mapscoords";
 import {
   MapPin,
   Navigation,
@@ -43,22 +44,6 @@ function getAmenityIcon(amenity: string) {
   if (lower.includes("cctv") || lower.includes("camera"))
     return <Camera className="w-5 h-5" />;
   return <Building2 className="w-5 h-5" />;
-}
-
-function parseMapsCoords(url: string): { lat: number; lng: number } | null {
-  const u = url.trim();
-  if (!u) return null;
-  const place3 = u.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
-  if (place3) return { lat: Number(place3[1]), lng: Number(place3[2]) };
-  const place12 = u.match(/!1d(-?\d+\.\d+)!2d(-?\d+\.\d+)/);
-  if (place12) return { lat: Number(place12[2]), lng: Number(place12[1]) };
-  const at = u.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-  if (at) return { lat: Number(at[1]), lng: Number(at[2]) };
-  const q = u.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
-  if (q) return { lat: Number(q[1]), lng: Number(q[2]) };
-  const dest = u.match(/[?&]destination=(-?\d+\.\d+),(-?\d+\.\d+)/);
-  if (dest) return { lat: Number(dest[1]), lng: Number(dest[2]) };
-  return null;
 }
 
 export default function PGDetailPage() {
@@ -119,7 +104,7 @@ function PGContent({ id }: { id: string }) {
     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
   const destCoords = pg.mapsUrl ? parseMapsCoords(pg.mapsUrl) : null;
   const embedSrc = destCoords
-    ? `https://maps.google.com/maps?q=${destCoords.lat},${destCoords.lng}(${encodeURIComponent(pg.name)})&t=k&z=18&output=embed`
+    ? `https://maps.google.com/maps?q=${destCoords.lat}%2C${destCoords.lng}&t=k&z=18&output=embed`
     : `https://maps.google.com/maps?q=${encodeURIComponent(fullAddress)}&t=k&z=16&output=embed`;
 
   return (

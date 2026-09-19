@@ -4,6 +4,12 @@ export const budgetOptions = [
   { value: "25000", label: "₹25,000+" },
 ];
 
+export const genderOptions = [
+  { value: "male", label: "Boys Only" },
+  { value: "female", label: "Girls Only" },
+  { value: "unisex", label: "Co-ed (Boys & Girls)" },
+];
+
 export const sharingOptions = [
   { value: "single", label: "Single Private Room" },
   { value: "double", label: "2 Sharing (Twin)" },

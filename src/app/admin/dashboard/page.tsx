@@ -71,6 +71,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const loadReviews = async () => {
+    try {
+      const res = await fetch("/api/engagement");
+      if (!res.ok) return;
+      const d = await res.json();
+      setReviews(Array.isArray(d.reviews) ? (d.reviews as ReviewRow[]) : []);
+      setLikes(typeof d.likes === "object" && d.likes !== null ? d.likes : {});
+    } catch {}
+  };
+
   useEffect(() => {
     let cancelled = false;
     fetch("/api/pg")
@@ -230,7 +240,10 @@ export default function AdminDashboard() {
             {(["overview", "pending", "listings", "users", "reviews"] as const).map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => {
+                setActiveTab(tab);
+                if (tab === "reviews") loadReviews();
+              }}
                 className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors capitalize whitespace-nowrap ${
                   activeTab === tab
                     ? "bg-accent text-white neon-glow"
