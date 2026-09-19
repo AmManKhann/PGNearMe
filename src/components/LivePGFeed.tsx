@@ -120,14 +120,17 @@ export function LivePGFeed() {
 
   const listings = useMemo<PGListing[]>(() => {
     const q = query.trim().toLowerCase();
+    const tokens = q ? q.split(/\s+/).filter(Boolean) : [];
     const budget = filters.budget ? Number(filters.budget) : null;
 
     const filtered = records.filter((r) => {
       if (
-        q &&
-        !`${r.name} ${r.locality} ${r.city} ${r.state ?? ""} ${r.pincode ?? ""} ${r.address ?? ""}`
-          .toLowerCase()
-          .includes(q)
+        tokens.length > 0 &&
+        !tokens.every((t) =>
+          `${r.name} ${r.locality} ${r.city} ${r.state ?? ""} ${r.pincode ?? ""} ${r.address ?? ""}`
+            .toLowerCase()
+            .includes(t)
+        )
       ) {
         return false;
       }

@@ -59,11 +59,13 @@ function SearchResults() {
       );
     }
     if (query) {
-      const q = query.toLowerCase();
+      const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
       filtered = filtered.filter((l) =>
-        `${l.name} ${l.locality} ${l.city} ${l.state ?? ""} ${l.pincode ?? ""} ${l.address ?? ""}`
-          .toLowerCase()
-          .includes(q)
+        tokens.every((t) =>
+          `${l.name} ${l.locality} ${l.city} ${l.state ?? ""} ${l.pincode ?? ""} ${l.address ?? ""}`
+            .toLowerCase()
+            .includes(t)
+        )
       );
     }
     if (gender) {
