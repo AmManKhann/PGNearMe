@@ -167,5 +167,45 @@
     "occupancy": "Triple Sharing",
     "createdAt": "2026-09-19T00:17:10.384Z",
     "updatedAt": "2026-09-19T00:21:07.955Z"
+  },
+  {
+    "name": "Sexy botz",
+    "city": "kharar",
+    "state": "Punjab",
+    "pincode": "140301",
+    "locality": "kharar",
+    "address": "2119 gbp crest near toll plaza",
+    "description": "Sexy botz paying guest accommodation in kharar, kharar.",
+    "gender": "unisex",
+    "totalBeds": 3000,
+    "amenities": [],
+    "pricing": [
+      {
+        "type": "Triple Sharing",
+        "price": 3000,
+        "meals": "3 meals"
+      }
+    ],
+    "images": [],
+    "videos": [],
+    "ownerName": "Lula",
+    "phone": "+91 6666666666",
+    "whatsapp": "+91 6666666666",
+    "mapsUrl": "https://www.google.com/maps/place/2119,+GBP+Crest+Rd,+Kharar,+Punjab+140301/@30.764379,76.6077961,799m/data=!3m2!1e3!4b1!4m6!3m5!1s0x390ffac48e67e9cd:0x50254bbdb70bbaeb!8m2!3d30.7643744!4d76.610371!16s%2Fg%2F11shkjl25d?entry=ttu&g_ep=EgoyMDI2MDkxNi4wIKXMDSoASAFQAw%3D%3D",
+    "lat": 30.7643744,
+    "lng": 76.610371,
+    "sharing": [],
+    "id": "pg-1789807258273-4wa8",
+    "status": "pending",
+    "isFeatured": false,
+    "priceMin": 3000,
+    "priceMax": 3000,
+    "rating": 0,
+    "reviewCount": 0,
+    "likes": 0,
+    "isVerified": false,
+    "occupancy": "Triple Sharing",
+    "createdAt": "2026-09-19T08:40:58.273Z",
+    "updatedAt": "2026-09-19T08:40:58.273Z"
   }
 ]
