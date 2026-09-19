@@ -16,12 +16,19 @@ interface EngagementState {
   likedKeys: Record<string, boolean>;
   likeCounts: Record<string, number>;
   reviews: Record<string, ReviewItem[]>;
+  reviewedKeys: Record<string, boolean>;
 }
 
 const STORAGE_KEY = "pgnearme_engagement";
 const LIKED_KEY = "pgnearme_liked";
+const REVIEWED_KEY = "pgnearme_reviewed";
 
-const empty: EngagementState = { likedKeys: {}, likeCounts: {}, reviews: {} };
+const empty: EngagementState = {
+  likedKeys: {},
+  likeCounts: {},
+  reviews: {},
+  reviewedKeys: {},
+};
 
 let current: EngagementState = empty;
 let hydrated = false;
@@ -66,9 +73,24 @@ function readLikedKeys(): Record<string, boolean> {
   return {};
 }
 
+function readReviewedKeys(): Record<string, boolean> {
+  try {
+    const raw = window.localStorage.getItem(REVIEWED_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === "object" && parsed !== null) {
+        return parsed as Record<string, boolean>;
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return {};
+}
+
 function getSnapshot(): EngagementState {
   if (typeof window !== "undefined" && !hydrated) {
-    current = { ...empty, likedKeys: readLikedKeys() };
+    current = { ...empty, likedKeys: readLikedKeys(), reviewedKeys: readReviewedKeys() };
     hydrated = true;
   }
   return current;
@@ -82,6 +104,7 @@ function applyState(updater: (prev: EngagementState) => EngagementState) {
   current = updater(current);
   try {
     window.localStorage.setItem(LIKED_KEY, JSON.stringify(current.likedKeys));
+    window.localStorage.setItem(REVIEWED_KEY, JSON.stringify(current.reviewedKeys));
   } catch {
     /* storage full or unavailable */
   }
@@ -112,6 +135,11 @@ export function useEngagement() {
   const getStoredReviews = useCallback(
     (entityId: string) => data.reviews[entityId] ?? [],
     [data.reviews]
+  );
+
+  const hasReviewed = useCallback(
+    (entityId: string) => Boolean(data.reviewedKeys[entityId]),
+    [data.reviewedKeys]
   );
 
   const hydrateListing = useCallback((entityId: string) => {
@@ -224,6 +252,7 @@ export function useEngagement() {
           const data = await res.json();
           applyState((s) => ({
             ...s,
+            reviewedKeys: { ...s.reviewedKeys, [entityId]: true },
             reviews: {
               ...s.reviews,
               [entityId]: [
@@ -251,6 +280,7 @@ export function useEngagement() {
     isLiked,
     likeCount,
     getStoredReviews,
+    hasReviewed,
     hydrateListing,
     toggleLike,
     addReview,

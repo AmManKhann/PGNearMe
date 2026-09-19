@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Star, PenLine, Tag, User, Phone, Mail } from "lucide-react";
+import { Star, PenLine, Tag, User, Phone, Mail, ShieldCheck } from "lucide-react";
 import { useEngagement, useClientReady, type ReviewItem } from "@/lib/engagement";
 
 export const REVIEW_TAGS = [
@@ -73,8 +73,9 @@ export function ReviewSection({
 }) {
   const key = String(entityId);
   const clientReady = useClientReady();
-  const { addReview, getStoredReviews, hydrateListing } = useEngagement();
+  const { addReview, getStoredReviews, hydrateListing, hasReviewed } = useEngagement();
   const stored = getStoredReviews(key);
+  const reviewed = clientReady && hasReviewed(key);
   const all = [...stored, ...seedReviews];
   const avg = all.length > 0 ? all.reduce((s, r) => s + r.rating, 0) / all.length : 0;
 
@@ -105,7 +106,7 @@ export function ReviewSection({
   };
 
   const handleSubmit = async () => {
-    if (!clientReady || !canSubmit || submitting) return;
+    if (!clientReady || reviewed || !canSubmit || submitting) return;
     setSubmitting(true);
     setError("");
     setTouched(true);
@@ -160,7 +161,18 @@ export function ReviewSection({
         </div>
       )}
 
-      <div className="mb-6 p-4 rounded-lg bg-surface-alt border border-border">
+      {reviewed ? (
+        <div className="mb-6 p-4 rounded-lg bg-surface-alt border border-border">
+          <p className="text-sm font-medium text-foreground flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-secondary" />
+            You already reviewed this place on this device
+          </p>
+          <p className="text-sm text-muted mt-1">
+            Thanks! One review per device is allowed, so the rating form is now hidden here.
+          </p>
+        </div>
+      ) : (
+        <div className="mb-6 p-4 rounded-lg bg-surface-alt border border-border">
         <p className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
           <PenLine className="w-4 h-4 text-primary-light" />
           Rate this place
@@ -252,6 +264,7 @@ export function ReviewSection({
           </button>
         </div>
       </div>
+      )}
 
       {all.length > 0 ? (
         <div className="space-y-4">
