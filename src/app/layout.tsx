@@ -116,7 +116,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   "@id": "https://www.pg-near-me.com/#organization",
                   name: "PG Near Me",
                   url: "https://www.pg-near-me.com",
-                  logo: "https://www.pg-near-me.com/icon.svg",
+                  logo: "https://www.pg-near-me.com/icon.png",
                   contactPoint: {
                     "@type": "ContactPoint",
                     telephone: "+91-9351524550",
@@ -144,26 +144,23 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             }),
           }}
         />
-        {/* Watermark logo — very faint overlay behind header/nav but above page backgrounds */}
-        <div
-          aria-hidden
-          className="fixed inset-0 z-40 pointer-events-none overflow-hidden"
-        >
-          <Image
-            src="/icon.svg"
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-contain opacity-[0.05]"
-            unoptimized
-          />
-        </div>
-
         <SessionProvider>
           <div className="relative z-10 flex min-h-screen flex-col bg-background text-foreground">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
+            <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+              <Image
+                src="/icon.png"
+                alt=""
+                fill
+                sizes="100vw"
+                className="object-contain opacity-[0.04]"
+                unoptimized
+              />
+            </div>
+            <div className="relative z-10 flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
           </div>
         </SessionProvider>
       </body>

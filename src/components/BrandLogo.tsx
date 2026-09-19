@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { RESET_HOME_EVENT } from "@/lib/searchFocus";
-import { EagleIcon } from "@/components/EagleIcon";
 
 interface BrandLogoProps {
   size?: "sm" | "lg";
@@ -21,10 +21,15 @@ export function BrandLogo({ size = "sm", className = "" }: BrandLogoProps) {
       <div
         className={`${
           size === "lg" ? "w-10 h-10" : "w-9 h-9"
-        } rounded-lg bg-neon-blue flex items-center justify-center shrink-0`}
+        } rounded-lg bg-white flex items-center justify-center overflow-hidden shrink-0`}
       >
-        <EagleIcon
-          className={size === "lg" ? "w-6 h-6 text-white" : "w-5 h-5 text-white"}
+        <Image
+          src="/icon.png"
+          alt="PG Near Me eagle logo"
+          width={350}
+          height={350}
+          className="w-full h-full object-contain"
+          unoptimized
         />
       </div>
       <span
