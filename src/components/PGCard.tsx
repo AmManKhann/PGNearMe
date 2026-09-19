@@ -87,27 +87,31 @@ export function PGCard({ listing }: { listing: PGListing }) {
           </div>
 
           <div className="flex items-center gap-1.5 text-sm">
-            <div className="relative inline-flex">
-              <div className="flex gap-0.5">
-                {stars.map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-muted/40" />
-                ))}
+          {listing.rating > 0 && listing.reviewCount > 0 ? (
+            <>
+              <div className="relative inline-flex">
+                <div className="flex gap-0.5">
+                  {stars.map((_, i) => (
+                    <Star key={i} className="w-4 h-4 text-muted/40" />
+                  ))}
+                </div>
+                <div
+                  className="absolute left-0 top-0 overflow-hidden flex gap-0.5 pointer-events-none"
+                  style={{ width: `${ratingPct}%` }}
+                >
+                  {stars.map((_, i) => (
+                    <Star key={`fill-${i}`} className="w-4 h-4 text-accent fill-accent shrink-0" />
+                  ))}
+                </div>
               </div>
-              <div
-                className="absolute left-0 top-0 overflow-hidden flex gap-0.5 pointer-events-none"
-                style={{ width: `${ratingPct}%` }}
-              >
-                {stars.map((_, i) => (
-                  <Star key={`fill-${i}`} className="w-4 h-4 text-accent fill-accent shrink-0" />
-                ))}
-              </div>
-            </div>
-            <span className="font-medium">
-              {listing.rating > 0 ? listing.rating.toFixed(1) : "New"}
-            </span>
-            <span className="text-xs text-muted">({listing.reviewCount})</span>
-            <span className="text-xs text-muted ml-auto">{listing.occupancy}</span>
-          </div>
+              <span className="font-medium">{listing.rating.toFixed(1)}</span>
+              <span className="text-xs text-muted">({listing.reviewCount})</span>
+            </>
+          ) : (
+            <span className="text-xs text-muted">No reviews yet</span>
+          )}
+          <span className="text-xs text-muted ml-auto">{listing.occupancy}</span>
+        </div>
 
           {listing.amenities.length > 0 && (
             <div className="flex flex-wrap gap-1.5">

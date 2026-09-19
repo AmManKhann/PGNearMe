@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loadPGRecords, savePGRecords, applyUpdate } from "@/lib/pgdata";
+import { loadEngagement } from "@/lib/engagementDB";
 
 type RouteParams = Promise<{ id: string }>;
 
@@ -8,7 +9,17 @@ export async function GET(_request: NextRequest, { params }: { params: RoutePara
   const all = await loadPGRecords();
   const listing = all.find((l) => l.id === id);
   if (!listing) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json({ listing });
+  const engagement = await loadEngagement();
+  const reviews = engagement.reviews.filter((rev) => rev.pgId === id);
+  let rating = listing.rating;
+  let reviewCount = listing.reviewCount;
+  if (reviews.length > 0) {
+    rating = Math.round((reviews.reduce((sum, x) => sum + x.rating, 0) / reviews.length) * 10) / 10;
+    reviewCount = reviews.length;
+  }
+  return NextResponse.json({
+    listing: { ...listing, rating, reviewCount, likes: engagement.likes[id] ?? listing.likes ?? 0 },
+  });
 }
 
 export async function PUT(request: NextRequest, { params }: { params: RouteParams }) {

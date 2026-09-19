@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { filterPGRecords, type PGFilters } from "@/lib/store";
 import { loadPGRecords, savePGRecords, buildNewRecord } from "@/lib/pgdata";
+import { loadEngagement } from "@/lib/engagementDB";
 
 type PGRecordGender = "male" | "female" | "unisex";
 
@@ -12,7 +13,22 @@ export async function GET(request: NextRequest) {
     if (v) (filters as Record<string, string>)[key] = v;
   }
   const records = await loadPGRecords();
-  const listings = filterPGRecords(records, filters);
+  const engagement = await loadEngagement();
+  const listings = filterPGRecords(records, filters).map((r) => {
+    const reviews = engagement.reviews.filter((rev) => rev.pgId === r.id);
+    let rating = r.rating;
+    let reviewCount = r.reviewCount;
+    if (reviews.length > 0) {
+      rating = Math.round((reviews.reduce((sum, x) => sum + x.rating, 0) / reviews.length) * 10) / 10;
+      reviewCount = reviews.length;
+    }
+    return {
+      ...r,
+      rating,
+      reviewCount,
+      likes: engagement.likes[r.id] ?? r.likes ?? 0,
+    };
+  });
   const ipLat = request.headers.get("x-vercel-ip-latitude");
   const ipLng = request.headers.get("x-vercel-ip-longitude");
   const clientLocation =
