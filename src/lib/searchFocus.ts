@@ -5,9 +5,6 @@ export const CITY_SELECT_EVENT = "pgnearme:city-select";
 export const SEARCH_PAGES = new Set([
   "/",
   "/search",
-  "/search/house",
-  "/search/office",
-  "/search/shop",
 ]);
 
 export function focusSearch() {
