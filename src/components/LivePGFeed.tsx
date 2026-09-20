@@ -217,9 +217,6 @@ export function LivePGFeed() {
   const showBanner =
     !coords && (status === "denied" || !geolocationSupported) && !bannerDismissed;
 
-  const locationNeeded =
-    !coords && (status === "denied" || !geolocationSupported);
-
   const requestLocation = () => {
     setBannerDismissed(false);
     if (!geolocationSupported) return;
@@ -267,12 +264,10 @@ export function LivePGFeed() {
           <button
             onClick={requestLocation}
             disabled={status === "locating"}
-            className={`min-w-0 flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold border transition-all bg-surface ${
+            className={`min-w-0 flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium border transition-all bg-surface ${
               coords
                 ? "bg-secondary/10 text-secondary border-secondary/30"
-                : locationNeeded
-                  ? "bg-accent/15 text-accent border-accent/50 shadow-sm hover:bg-accent/25"
-                  : "text-muted border-border hover:text-foreground hover:border-secondary/40"
+                : "text-muted border-border hover:text-foreground hover:border-secondary/40"
             } disabled:opacity-50`}
           >
             {status === "locating" ? (
@@ -280,13 +275,7 @@ export function LivePGFeed() {
             ) : (
               <Navigation className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
             )}
-            <span className="truncate">
-              {status === "locating"
-                ? "Locating..."
-                : locationNeeded
-                  ? "Enable Location"
-                  : "Near Me"}
-            </span>
+            <span className="truncate">{status === "locating" ? "Locating..." : "Near Me"}</span>
           </button>
           <button
             onClick={() => setFiltersOpen(true)}
