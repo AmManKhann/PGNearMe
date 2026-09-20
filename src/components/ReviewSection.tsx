@@ -89,7 +89,6 @@ export function ReviewSection({
   const [error, setError] = useState("");
   const [touched, setTouched] = useState(false);
   const [open, setOpen] = useState(false);
-  const [showReviews, setShowReviews] = useState(false);
 
   useEffect(() => {
     if (clientReady) hydrateListing(key);
@@ -132,7 +131,6 @@ export function ReviewSection({
       setEmail("");
       setTouched(false);
       setOpen(false);
-      setShowReviews(true);
       setJustAdded(true);
       setTimeout(() => setJustAdded(false), 3000);
     } else {
@@ -178,11 +176,8 @@ export function ReviewSection({
       ) : !open ? (
         <button
           type="button"
-          onClick={() => {
-            setOpen(true);
-            setShowReviews(true);
-          }}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-primary/40 bg-primary/5 hover:bg-primary/10 text-foreground font-medium transition-all mb-6"
+          onClick={() => setOpen(true)}
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-primary/40 bg-primary/5 hover:bg-primary/10 text-foreground font-medium transition-all mb-6 press-active"
         >
           <PenLine className="w-4 h-4 text-primary-light" />
           {all.length > 0
@@ -294,33 +289,15 @@ export function ReviewSection({
       )}
 
       {all.length > 0 ? (
-        <div className="flex flex-col items-center">
-          {!showReviews ? (
-            <button
-              type="button"
-              onClick={() => setShowReviews(true)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-primary/40 bg-primary/5 hover:bg-primary/10 text-foreground text-sm font-medium transition-all"
-            >
+        <div className="w-full">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-semibold text-foreground flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-primary-light" />
-              See Reviews ({all.length})
-            </button>
-          ) : (
-            <div className="w-full">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-primary-light" />
-                  Reviews ({all.length})
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setShowReviews(false)}
-                  className="text-xs text-muted hover:text-foreground transition-colors"
-                >
-                  Hide
-                </button>
-              </div>
-              <div className="space-y-4">
-                {all.map((review) => (
+              Reviews ({all.length})
+            </p>
+          </div>
+          <div className="space-y-4">
+            {all.map((review) => (
                   <div
                     key={review.id}
                     className="p-4 rounded-lg bg-surface-alt border border-border"
@@ -365,8 +342,6 @@ export function ReviewSection({
                 ))}
               </div>
             </div>
-          )}
-        </div>
       ) : (
         <p className="text-sm text-muted text-center py-6">
           No reviews yet. Be the first to rate this place!

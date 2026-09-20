@@ -113,6 +113,34 @@ a.bg-primary:hover {
   color: var(--btn-text);
 }
 
+/* Instant click responsiveness: no tap delay, immediate press feedback */
+button,
+[role="button"],
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+button:not(:disabled),
+[role="button"]:not(:disabled),
+select:not(:disabled),
+label[for],
+input[type="checkbox"],
+input[type="radio"],
+a {
+  cursor: pointer;
+}
+button:not(:disabled):active,
+[role="button"]:not(:disabled):active,
+a:active {
+  transform: scale(0.985);
+}
+.press-active:not(:disabled):active {
+  transform: scale(0.985);
+}
+
 .gradient-hero {
   background: #FFFFFF;
 }
