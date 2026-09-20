@@ -50,6 +50,7 @@ prodsrv.err.txt
 devlog.txt
 cf-login-*.log
 named-tunnel-*.log
+quick-tun-*.log
 
 .vercel
 .env*
