@@ -123,7 +123,7 @@ function PGContent({ id }: { id: string }) {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-start-1 lg:col-span-2 lg:row-start-1 space-y-6">
             <div className="bg-surface rounded-xl border border-border overflow-hidden">
               <ImageGallery images={pg.images} name={pg.name} />
               {pg.videos && pg.videos.length > 0 && (
@@ -252,7 +252,43 @@ function PGContent({ id }: { id: string }) {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="lg:col-start-1 lg:col-span-3 lg:row-start-2">
+            <div className="bg-surface-alt rounded-xl border border-border p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <MapPin className="w-5 h-5 text-accent" />
+                <h2 className="text-lg font-semibold text-foreground">Location</h2>
+              </div>
+              <p className="text-muted leading-relaxed mb-5">{fullAddress}</p>
+              <a
+                href={mapsLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-light transition-all neon-glow"
+              >
+                <Navigation className="w-5 h-5" />
+                Get Directions
+              </a>
+              <div className="relative mt-4 rounded-xl border border-border overflow-hidden">
+                <iframe
+                  src={embedSrc}
+                  title={`3D location view for ${pg.name}`}
+                  className="w-full h-64 md:h-72 border-0 map-frame-dark pointer-events-none"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
+                <a
+                  href={mapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Get directions to ${pg.name}`}
+                  className="absolute inset-0"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6 lg:col-start-3 lg:row-start-1">
             <div className="bg-surface rounded-xl border border-border p-6 lg:sticky lg:top-24">
               <div className="text-center mb-6">
                 <p className="text-sm text-muted mb-1">Starting from</p>
@@ -339,44 +375,8 @@ function PGContent({ id }: { id: string }) {
             </div>
           </div>
 
-          <div className="lg:col-span-3">
+          <div className="lg:col-start-1 lg:col-span-3 lg:row-start-3">
             <ReviewSection entityId={id} seedReviews={[]} />
-          </div>
-
-          <div className="lg:col-span-3">
-            <div className="bg-surface-alt rounded-xl border border-border p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <MapPin className="w-5 h-5 text-accent" />
-                <h2 className="text-lg font-semibold text-foreground">Location</h2>
-              </div>
-              <p className="text-muted leading-relaxed mb-5">{fullAddress}</p>
-              <a
-                href={mapsLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-light transition-all neon-glow"
-              >
-                <Navigation className="w-5 h-5" />
-                Get Directions
-              </a>
-              <div className="relative mt-4 rounded-xl border border-border overflow-hidden">
-                <iframe
-                  src={embedSrc}
-                  title={`3D location view for ${pg.name}`}
-                  className="w-full h-64 md:h-72 border-0 map-frame-dark pointer-events-none"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  allowFullScreen
-                />
-                <a
-                  href={mapsLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Get directions to ${pg.name}`}
-                  className="absolute inset-0"
-                />
-              </div>
-            </div>
           </div>
         </div>
       </div>

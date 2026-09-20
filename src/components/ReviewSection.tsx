@@ -175,178 +175,195 @@ export function ReviewSection({
             Thanks! One review per device is allowed, so the rating form is now hidden here.
           </p>
         </div>
-      ) : (
-        <div className="mb-6 p-4 rounded-lg bg-surface-alt border border-border">
-        {!open ? (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="w-full flex items-center gap-2 py-2.5 px-4 rounded-lg border border-primary/40 bg-primary/5 hover:bg-primary/10 text-foreground font-medium transition-all"
-          >
-            <PenLine className="w-4 h-4 text-primary-light" />
-            Write a review
-          </button>
-        ) : (
-          <>
-        <div className="flex items-center justify-between mb-3">
-        <p className="text-sm font-medium text-foreground flex items-center gap-2">
-          <PenLine className="w-4 h-4 text-primary-light" />
-          Rate this place
-        </p>
+      ) : !open ? (
         <button
           type="button"
-          onClick={() => setOpen(false)}
-          className="text-xs text-muted hover:text-foreground transition-colors"
+          onClick={() => {
+            setOpen(true);
+            setShowReviews(true);
+          }}
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-primary/40 bg-primary/5 hover:bg-primary/10 text-foreground font-medium transition-all mb-6"
         >
-          Cancel
+          <PenLine className="w-4 h-4 text-primary-light" />
+          {all.length > 0
+            ? `Write a review & see reviews (${all.length})`
+            : "Write a review"}
         </button>
-        </div>
-        <div className={`mb-3 ${touched && rating === 0 ? "opacity-60" : ""}`}>
-          <div className="flex items-center gap-3 flex-wrap">
-            <StarRating value={rating} onChange={(n) => { setRating(n); setTouched(true); }} />
-            <span className="text-sm font-medium text-foreground">
-              {rating > 0 ? RATING_LABELS[rating] : "Tap to rate"}
+      ) : (
+        <div className="mb-6 p-4 rounded-lg bg-surface-alt border border-border">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-medium text-foreground flex items-center gap-2">
+              <PenLine className="w-4 h-4 text-primary-light" />
+              Rate this place
+            </p>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="text-xs text-muted hover:text-foreground transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+          <div className={`mb-3 ${touched && rating === 0 ? "opacity-60" : ""}`}>
+            <div className="flex items-center gap-3 flex-wrap">
+              <StarRating value={rating} onChange={(n) => { setRating(n); setTouched(true); }} />
+              <span className="text-sm font-medium text-foreground">
+                {rating > 0 ? RATING_LABELS[rating] : "Tap to rate"}
+              </span>
+            </div>
+          </div>
+
+          <p className="text-xs font-medium text-muted mb-2 flex items-center gap-1.5">
+            <Tag className="w-3.5 h-3.5" />
+            What did you like? (select at least one)
+          </p>
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {REVIEW_TAGS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => toggleTag(tag)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                  tags.includes(tag)
+                    ? "bg-primary text-white border-primary"
+                    : "bg-surface text-muted border-border hover:border-primary/40 hover:text-foreground"
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <label className="block">
+              <span className="text-xs font-medium text-muted mb-1.5 flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5" />
+                Your name
+              </span>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your name"
+                className={inputClass}
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs font-medium text-muted mb-1.5 flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5" />
+                Phone
+              </span>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="10-digit mobile number"
+                className={inputClass}
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs font-medium text-muted mb-1.5 flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5" />
+                Email
+              </span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className={inputClass}
+              />
+            </label>
+          </div>
+
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <span className="text-xs text-muted">
+              {rating === 0
+                ? "Select a star rating"
+                : `${RATING_LABELS[rating]} — ${tags.length} tag${tags.length === 1 ? "" : "s"}`}
             </span>
+            <button
+              onClick={handleSubmit}
+              disabled={!canSubmit || submitting}
+              className="px-5 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-light transition-all disabled:opacity-40 disabled:pointer-events-none"
+            >
+              {submitting ? "Submitting…" : "Submit Review"}
+            </button>
           </div>
         </div>
-
-        <p className="text-xs font-medium text-muted mb-2 flex items-center gap-1.5">
-          <Tag className="w-3.5 h-3.5" />
-          What did you like? (select at least one)
-        </p>
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {REVIEW_TAGS.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              onClick={() => toggleTag(tag)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                tags.includes(tag)
-                  ? "bg-primary text-white border-primary"
-                  : "bg-surface text-muted border-border hover:border-primary/40 hover:text-foreground"
-              }`}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-          <label className="block">
-            <span className="text-xs font-medium text-muted mb-1.5 flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5" />
-              Your name
-            </span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your name"
-              className={inputClass}
-            />
-          </label>
-          <label className="block">
-            <span className="text-xs font-medium text-muted mb-1.5 flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5" />
-              Phone
-            </span>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="10-digit mobile number"
-              className={inputClass}
-            />
-          </label>
-          <label className="block">
-            <span className="text-xs font-medium text-muted mb-1.5 flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5" />
-              Email
-            </span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className={inputClass}
-            />
-          </label>
-        </div>
-
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <span className="text-xs text-muted">
-            {rating === 0
-              ? "Select a star rating"
-              : `${RATING_LABELS[rating]} — ${tags.length} tag${tags.length === 1 ? "" : "s"}`}
-          </span>
-          <button
-            onClick={handleSubmit}
-            disabled={!canSubmit || submitting}
-            className="px-5 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-light transition-all disabled:opacity-40 disabled:pointer-events-none"
-          >
-            {submitting ? "Submitting…" : "Submit Review"}
-          </button>
-        </div>
-          </>
-        )}
-      </div>
       )}
 
       {all.length > 0 ? (
         <div className="flex flex-col items-center">
-          <button
-            type="button"
-            onClick={() => setShowReviews((s) => !s)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-primary/40 bg-primary/5 hover:bg-primary/10 text-foreground text-sm font-medium transition-all"
-          >
-            <MessageSquare className="w-4 h-4 text-primary-light" />
-            {showReviews ? "Hide reviews" : `See Reviews (${all.length})`}
-          </button>
-          {showReviews && (
-            <div className="w-full space-y-4 mt-4">
-              {all.map((review) => (
-                <div
-                  key={review.id}
-                  className="p-4 rounded-lg bg-surface-alt border border-border"
+          {!showReviews ? (
+            <button
+              type="button"
+              onClick={() => setShowReviews(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-primary/40 bg-primary/5 hover:bg-primary/10 text-foreground text-sm font-medium transition-all"
+            >
+              <MessageSquare className="w-4 h-4 text-primary-light" />
+              See Reviews ({all.length})
+            </button>
+          ) : (
+            <div className="w-full">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-primary-light" />
+                  Reviews ({all.length})
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowReviews(false)}
+                  className="text-xs text-muted hover:text-foreground transition-colors"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary-light">
-                        {review.author.charAt(0).toUpperCase()}
-                      </div>
-                      <span className="font-medium text-foreground text-sm">
-                        {review.author}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-accent fill-accent" />
-                      <span className="text-sm font-medium">{review.rating}</span>
-                      <span className="text-xs text-muted ml-1">{RATING_LABELS[review.rating]}</span>
-                    </div>
-                  </div>
-                  {review.tags && review.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-2">
-                      {review.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2.5 py-0.5 rounded-full bg-surface border border-border text-xs text-muted"
-                        >
-                          {tag}
+                  Hide
+                </button>
+              </div>
+              <div className="space-y-4">
+                {all.map((review) => (
+                  <div
+                    key={review.id}
+                    className="p-4 rounded-lg bg-surface-alt border border-border"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary-light">
+                          {review.author.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="font-medium text-foreground text-sm">
+                          {review.author}
                         </span>
-                      ))}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-accent fill-accent" />
+                        <span className="text-sm font-medium">{review.rating}</span>
+                        <span className="text-xs text-muted ml-1">{RATING_LABELS[review.rating]}</span>
+                      </div>
                     </div>
-                  )}
-                  <p className="text-xs text-muted/60">
-                    {Number.isNaN(new Date(review.date).getTime())
-                      ? review.date
-                      : new Date(review.date).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                  </p>
-                </div>
-              ))}
+                    {review.tags && review.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-2">
+                        {review.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2.5 py-0.5 rounded-full bg-surface border border-border text-xs text-muted"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-xs text-muted/60">
+                      {Number.isNaN(new Date(review.date).getTime())
+                        ? review.date
+                        : new Date(review.date).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
