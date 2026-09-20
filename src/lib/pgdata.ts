@@ -9,6 +9,8 @@ export function isRemote(): boolean {
   return REMOTE;
 }
 
+const FETCH_TIMEOUT_MS = 8000;
+
 function apiUrl(): string {
   return `https://api.github.com/repos/${REPO}/contents/data/pg.json`;
 }
@@ -24,6 +26,7 @@ export async function loadPGRecords(): Promise<PGRecord[]> {
     const res = await fetch(apiUrl(), {
       cache: "no-store",
       headers,
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
     if (!res.ok) throw new Error(`contents fetch ${res.status}`);
     const parsed: unknown = await res.json();
@@ -49,6 +52,7 @@ export async function savePGRecords(records: PGRecord[]): Promise<void> {
   let sha: string | undefined;
   const getRes = await fetch(apiUrl(), {
     headers: { ...headers, "Content-Type": "application/json" },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
   if (getRes.ok) {
     try {
@@ -61,6 +65,7 @@ export async function savePGRecords(records: PGRecord[]): Promise<void> {
   const putRes = await fetch(apiUrl(), {
     method: "PUT",
     headers,
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     body: JSON.stringify({
       message: "Update PG listing data",
       content,

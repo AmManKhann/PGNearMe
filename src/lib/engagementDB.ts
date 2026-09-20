@@ -26,6 +26,8 @@ const REMOTE = Boolean(REPO && process.env.VERCEL);
 
 const emptyData: EngagementData = { reviews: [], likes: {} };
 
+const FETCH_TIMEOUT_MS = 8000;
+
 function apiUrl(): string {
   return `https://api.github.com/repos/${REPO}/contents/data/engagement.json`;
 }
@@ -75,7 +77,11 @@ export async function loadEngagement(): Promise<EngagementData> {
       "User-Agent": "pgnearme",
     };
     if (TOKEN) headers.Authorization = `Bearer ${TOKEN}`;
-    const res = await fetch(apiUrl(), { cache: "no-store", headers });
+    const res = await fetch(apiUrl(), {
+      cache: "no-store",
+      headers,
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
     if (!res.ok) throw new Error(`contents fetch ${res.status}`);
     const parsed = (await res.json()) as Partial<EngagementData>;
     return {
@@ -106,6 +112,7 @@ export async function saveEngagement(data: EngagementData): Promise<void> {
   let sha: string | undefined;
   const getRes = await fetch(apiUrl(), {
     headers: { ...headers, "Content-Type": "application/json" },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
   if (getRes.ok) {
     try {
@@ -118,6 +125,7 @@ export async function saveEngagement(data: EngagementData): Promise<void> {
   const putRes = await fetch(apiUrl(), {
     method: "PUT",
     headers,
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     body: JSON.stringify({
       message: "Update engagement data",
       content,

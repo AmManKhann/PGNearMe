@@ -8,6 +8,8 @@ const REPO = process.env.GITHUB_REPO?.trim() || "";
 const TOKEN = process.env.GITHUB_TOKEN?.trim() || "";
 const REMOTE = Boolean(REPO && TOKEN && process.env.VERCEL);
 
+const FETCH_TIMEOUT_MS = 8000;
+
 function fileApiUrl(filename: string): string {
   return `https://api.github.com/repos/${REPO}/contents/data/uploads/${encodeURIComponent(
     filename
@@ -41,6 +43,7 @@ export async function saveUpload(filename: string, buffer: Buffer): Promise<void
       ...headers,
       Accept: "application/vnd.github+json",
     },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
   if (getRes.ok) {
     try {
@@ -53,6 +56,7 @@ export async function saveUpload(filename: string, buffer: Buffer): Promise<void
   const putRes = await fetch(fileApiUrl(filename), {
     method: "PUT",
     headers,
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     body: JSON.stringify({
       message: `Upload media ${filename}`,
       content,
@@ -74,6 +78,7 @@ export async function loadUpload(filename: string): Promise<Buffer | null> {
   try {
     const res = await fetch(fileApiUrl(filename), {
       cache: "no-store",
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         Accept: "application/vnd.github.raw+json",
         "User-Agent": "pgnearme",
