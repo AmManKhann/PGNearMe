@@ -245,7 +245,9 @@ function PGContent({ id }: { id: string }) {
                     <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                       {getAmenityIcon(amenity)}
                     </div>
-                    <span className="text-sm font-medium text-foreground">{amenity}</span>
+                    <span className="text-sm font-medium text-foreground min-w-0 break-words leading-snug">
+                      {amenity}
+                    </span>
                   </div>
                 ))}
               </div>
