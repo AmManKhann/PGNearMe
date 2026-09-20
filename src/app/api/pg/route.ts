@@ -35,7 +35,10 @@ export async function GET(request: NextRequest) {
     ipLat && ipLng && Number.isFinite(Number(ipLat)) && Number.isFinite(Number(ipLng))
       ? { lat: Number(ipLat), lng: Number(ipLng) }
       : undefined;
-  return NextResponse.json({ listings, clientLocation });
+  return NextResponse.json(
+    { listings, clientLocation },
+    { headers: { "Cache-Control": "private, max-age=60" } }
+  );
 }
 
 export async function POST(request: NextRequest) {

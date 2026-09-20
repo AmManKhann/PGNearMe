@@ -17,9 +17,12 @@ export async function GET(_request: NextRequest, { params }: { params: RoutePara
     rating = Math.round((reviews.reduce((sum, x) => sum + x.rating, 0) / reviews.length) * 10) / 10;
     reviewCount = reviews.length;
   }
-  return NextResponse.json({
-    listing: { ...listing, rating, reviewCount, likes: engagement.likes[id] ?? listing.likes ?? 0 },
-  });
+  return NextResponse.json(
+    {
+      listing: { ...listing, rating, reviewCount, likes: engagement.likes[id] ?? listing.likes ?? 0 },
+    },
+    { headers: { "Cache-Control": "private, max-age=60" } }
+  );
 }
 
 export async function PUT(request: NextRequest, { params }: { params: RouteParams }) {

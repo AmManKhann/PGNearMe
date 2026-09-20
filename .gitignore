@@ -48,6 +48,8 @@ tun-b.txt
 prodsrv.txt
 prodsrv.err.txt
 devlog.txt
+cf-login-*.log
+named-tunnel-*.log
 
 .vercel
 .env*

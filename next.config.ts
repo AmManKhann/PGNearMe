@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["subscription-approved-based-popular.trycloudflare.com"],
+  allowedDevOrigins: ["app.pg-near-me.com"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },

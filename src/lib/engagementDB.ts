@@ -27,6 +27,7 @@ const REMOTE = Boolean(REPO && process.env.VERCEL);
 const emptyData: EngagementData = { reviews: [], likes: {} };
 
 const FETCH_TIMEOUT_MS = 8000;
+const REMOTE_CACHE_TTL_MS = 60_000;
 
 function apiUrl(): string {
   return `https://api.github.com/repos/${REPO}/contents/data/engagement.json`;
@@ -69,32 +70,53 @@ function writeDisk(data: EngagementData): void {
   }
 }
 
+let engagementCache: EngagementData | null = null;
+let engagementCacheAt = 0;
+let engagementInflight: Promise<EngagementData> | null = null;
+
+function fetchRemoteEngagement(): Promise<EngagementData> {
+  const now = Date.now();
+  if (engagementCache && now - engagementCacheAt < REMOTE_CACHE_TTL_MS) {
+    return Promise.resolve(engagementCache);
+  }
+  if (!engagementInflight) {
+    engagementInflight = (async () => {
+      try {
+        const headers: Record<string, string> = {
+          Accept: "application/vnd.github.raw+json",
+          "User-Agent": "pgnearme",
+        };
+        if (TOKEN) headers.Authorization = `Bearer ${TOKEN}`;
+        const res = await fetch(apiUrl(), {
+          cache: "no-store",
+          headers,
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        });
+        if (!res.ok) throw new Error(`contents fetch ${res.status}`);
+        const parsed = (await res.json()) as Partial<EngagementData>;
+        engagementCache = {
+          reviews: Array.isArray(parsed.reviews) ? (parsed.reviews as StoredReview[]) : [],
+          likes:
+            typeof parsed.likes === "object" && parsed.likes !== null
+              ? (parsed.likes as Record<string, number>)
+              : {},
+        };
+        engagementCacheAt = Date.now();
+        return engagementCache;
+      } catch (err) {
+        console.error("loadEngagement fallback to disk:", err);
+        return readDisk();
+      }
+    })().finally(() => {
+      engagementInflight = null;
+    });
+  }
+  return engagementInflight;
+}
+
 export async function loadEngagement(): Promise<EngagementData> {
   if (!REMOTE) return readDisk();
-  try {
-    const headers: Record<string, string> = {
-      Accept: "application/vnd.github.raw+json",
-      "User-Agent": "pgnearme",
-    };
-    if (TOKEN) headers.Authorization = `Bearer ${TOKEN}`;
-    const res = await fetch(apiUrl(), {
-      cache: "no-store",
-      headers,
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    });
-    if (!res.ok) throw new Error(`contents fetch ${res.status}`);
-    const parsed = (await res.json()) as Partial<EngagementData>;
-    return {
-      reviews: Array.isArray(parsed.reviews) ? (parsed.reviews as StoredReview[]) : [],
-      likes:
-        typeof parsed.likes === "object" && parsed.likes !== null
-          ? (parsed.likes as Record<string, number>)
-          : {},
-    };
-  } catch (err) {
-    console.error("loadEngagement fallback to disk:", err);
-    return readDisk();
-  }
+  return fetchRemoteEngagement();
 }
 
 export async function saveEngagement(data: EngagementData): Promise<void> {
@@ -136,6 +158,7 @@ export async function saveEngagement(data: EngagementData): Promise<void> {
   if (!putRes.ok) {
     throw new Error(`github contents PUT ${putRes.status}`);
   }
+  engagementCache = null;
 }
 
 export interface AddReviewInput {

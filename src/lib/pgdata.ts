@@ -10,31 +10,53 @@ export function isRemote(): boolean {
 }
 
 const FETCH_TIMEOUT_MS = 8000;
+const REMOTE_CACHE_TTL_MS = 60_000;
 
 function apiUrl(): string {
   return `https://api.github.com/repos/${REPO}/contents/data/pg.json`;
 }
 
+let remoteCache: PGRecord[] | null = null;
+let remoteCacheAt = 0;
+let remoteInflight: Promise<PGRecord[]> | null = null;
+
+function fetchRemoteRecords(): Promise<PGRecord[]> {
+  const now = Date.now();
+  if (remoteCache && now - remoteCacheAt < REMOTE_CACHE_TTL_MS) {
+    return Promise.resolve(remoteCache);
+  }
+  if (!remoteInflight) {
+    remoteInflight = (async () => {
+      try {
+        const headers: Record<string, string> = {
+          Accept: "application/vnd.github.raw+json",
+          "User-Agent": "pgnearme",
+        };
+        if (TOKEN) headers.Authorization = `Bearer ${TOKEN}`;
+        const res = await fetch(apiUrl(), {
+          cache: "no-store",
+          headers,
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        });
+        if (!res.ok) throw new Error(`contents fetch ${res.status}`);
+        const parsed: unknown = await res.json();
+        remoteCache = Array.isArray(parsed) ? (parsed as PGRecord[]) : [];
+        remoteCacheAt = Date.now();
+        return remoteCache;
+      } catch (err) {
+        console.error("loadPGRecords fallback to disk:", err);
+        return getRecords();
+      }
+    })().finally(() => {
+      remoteInflight = null;
+    });
+  }
+  return remoteInflight;
+}
+
 export async function loadPGRecords(): Promise<PGRecord[]> {
   if (!REMOTE) return getRecords();
-  try {
-    const headers: Record<string, string> = {
-      Accept: "application/vnd.github.raw+json",
-      "User-Agent": "pgnearme",
-    };
-    if (TOKEN) headers.Authorization = `Bearer ${TOKEN}`;
-    const res = await fetch(apiUrl(), {
-      cache: "no-store",
-      headers,
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    });
-    if (!res.ok) throw new Error(`contents fetch ${res.status}`);
-    const parsed: unknown = await res.json();
-    return Array.isArray(parsed) ? (parsed as PGRecord[]) : [];
-  } catch (err) {
-    console.error("loadPGRecords fallback to disk:", err);
-    return getRecords();
-  }
+  return fetchRemoteRecords();
 }
 
 export async function savePGRecords(records: PGRecord[]): Promise<void> {
@@ -76,6 +98,7 @@ export async function savePGRecords(records: PGRecord[]): Promise<void> {
   if (!putRes.ok) {
     throw new Error(`github contents PUT ${putRes.status}`);
   }
+  remoteCache = null;
 }
 
 type CreateLike = Omit<
