@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { filterPGRecords, type PGFilters } from "@/lib/store";
 import { loadPGRecords, savePGRecords, buildNewRecord } from "@/lib/pgdata";
 import { loadEngagement } from "@/lib/engagementDB";
+import { ensureCoordinates } from "@/lib/geocode";
 
 type PGRecordGender = "male" | "female" | "unisex";
 
@@ -87,7 +88,7 @@ export async function GET(request: NextRequest) {
     const v = searchParams.get(key);
     if (v) (filters as Record<string, string>)[key] = v;
   }
-  const records = await loadPGRecords();
+  const records = await ensureCoordinates(await loadPGRecords());
   const engagement = await loadEngagement();
   const listings = filterPGRecords(records, filters).map((r) => {
     const reviews = engagement.reviews.filter((rev) => rev.pgId === r.id);

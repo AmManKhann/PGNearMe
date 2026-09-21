@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loadPGRecords, savePGRecords, applyUpdate } from "@/lib/pgdata";
 import { loadEngagement } from "@/lib/engagementDB";
+import { ensureCoordinates } from "@/lib/geocode";
 
 type RouteParams = Promise<{ id: string }>;
 
 export async function GET(_request: NextRequest, { params }: { params: RouteParams }) {
   const { id } = await params;
-  const all = await loadPGRecords();
+  const all = await ensureCoordinates(await loadPGRecords());
   const listing = all.find((l) => l.id === id);
   if (!listing) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const engagement = await loadEngagement();

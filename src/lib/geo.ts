@@ -22,6 +22,7 @@ export const CITY_COORDS: Record<string, LatLng> = {
   kolkata: { lat: 22.5726, lng: 88.3639 },
   ahmedabad: { lat: 23.0225, lng: 72.5714 },
   jaipur: { lat: 26.9124, lng: 75.7873 },
+  sikar: { lat: 27.6094, lng: 75.1399 },
   kochi: { lat: 9.9312, lng: 76.2673 },
   cochin: { lat: 9.9312, lng: 76.2673 },
   lucknow: { lat: 26.8467, lng: 80.9462 },
