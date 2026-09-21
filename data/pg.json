@@ -275,7 +275,7 @@
     "mapsUrl": "https://maps.app.goo.gl/33WyqNj1MMy219JA6",
     "sharing": [],
     "id": "pg-1790004954566-zcds",
-    "status": "pending",
+    "status": "approved",
     "isFeatured": false,
     "priceMin": 8000,
     "priceMax": 11000,
@@ -285,6 +285,6 @@
     "isVerified": false,
     "occupancy": "Triple Sharing",
     "createdAt": "2026-09-21T15:35:54.563Z",
-    "updatedAt": "2026-09-21T15:35:54.563Z"
+    "updatedAt": "2026-09-21T15:40:03.284Z"
   }
 ]
