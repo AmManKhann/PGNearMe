@@ -215,5 +215,76 @@
     "occupancy": "Single seater",
     "createdAt": "2026-09-21T10:26:34.281Z",
     "updatedAt": "2026-09-21T10:29:51.734Z"
+  },
+  {
+    "name": "Ex- Army Boys Hostel",
+    "city": "Sikar",
+    "state": "Rajasthan",
+    "pincode": "332001",
+    "locality": "Piprali road",
+    "address": "Near Milan marriage garden \nPooja water supplier wali Gali \nPiprali Road sikar",
+    "description": "Ex- Army Boys Hostel paying guest accommodation in Piprali road, Sikar.",
+    "gender": "male",
+    "totalBeds": 70,
+    "amenities": [
+      "WiFi",
+      "Food (3 meals)",
+      "AC Rooms",
+      "Laundry",
+      "Power Backup",
+      "CCTV",
+      "Hot Water",
+      "Housekeeping"
+    ],
+    "pricing": [
+      {
+        "type": "Triple Sharing",
+        "price": 8000,
+        "meals": "3 meals"
+      },
+      {
+        "type": "Dubble sharing",
+        "price": 8500,
+        "meals": "3 meals"
+      },
+      {
+        "type": "Single",
+        "price": 10000,
+        "meals": "3 meals"
+      },
+      {
+        "type": "AC Dubble shering",
+        "price": 10500,
+        "meals": "3 meals"
+      },
+      {
+        "type": "AC single",
+        "price": 11000,
+        "meals": "3 meal"
+      }
+    ],
+    "images": [
+      "/api/uploads/1790004730625-d87a92gw.jpg"
+    ],
+    "videos": [
+      "/api/uploads/1790004885671-uz02ndhs.mp4"
+    ],
+    "ownerName": "Mahendra Singh",
+    "phone": "+918725959828",
+    "whatsapp": "+918725959828",
+    "mapsUrl": "https://maps.app.goo.gl/33WyqNj1MMy219JA6",
+    "sharing": [],
+    "id": "pg-1790004954566-zcds",
+    "status": "pending",
+    "isFeatured": false,
+    "priceMin": 8000,
+    "priceMax": 11000,
+    "rating": 0,
+    "reviewCount": 0,
+    "likes": 0,
+    "isVerified": false,
+    "occupancy": "Triple Sharing",
+    "createdAt": "2026-09-21T15:35:54.563Z",
+    "updatedAt": "2026-09-21T15:35:54.563Z"
   }
 ]
