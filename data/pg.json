@@ -167,5 +167,53 @@
     "occupancy": "Triple Sharing",
     "createdAt": "2026-09-19T00:17:10.384Z",
     "updatedAt": "2026-09-20T11:36:30.769Z"
+  },
+  {
+    "name": "Ex army boys hostel",
+    "city": "Sikar",
+    "state": "Rajasthan",
+    "pincode": "332001",
+    "locality": "Piprali road",
+    "address": "Near Milan marriage garden \nPooja water supplier wali Gali \nPiprali road sikar",
+    "description": "Only for disciplined students",
+    "gender": "male",
+    "totalBeds": 70,
+    "amenities": [
+      "WiFi",
+      "Food (3 meals)",
+      "AC Rooms",
+      "Laundry",
+      "Power Backup",
+      "CCTV",
+      "Housekeeping",
+      "Hot Water",
+      "Room Service"
+    ],
+    "pricing": [
+      {
+        "type": "Single seater",
+        "price": 10000,
+        "meals": "3 meals"
+      }
+    ],
+    "images": [],
+    "videos": [],
+    "ownerName": "Mahendra Singh",
+    "phone": "8725959828",
+    "whatsapp": "8725959828",
+    "mapsUrl": "J5HF+2M7, Jat Colony, Sikar, Samrathpura,Rajasthan 332001",
+    "sharing": [],
+    "id": "pg-1789986394283-p2m5",
+    "status": "pending",
+    "isFeatured": false,
+    "priceMin": 10000,
+    "priceMax": 10000,
+    "rating": 0,
+    "reviewCount": 0,
+    "likes": 0,
+    "isVerified": false,
+    "occupancy": "Single seater",
+    "createdAt": "2026-09-21T10:26:34.281Z",
+    "updatedAt": "2026-09-21T10:26:34.281Z"
   }
 ]
