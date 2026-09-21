@@ -5,6 +5,81 @@ import { loadEngagement } from "@/lib/engagementDB";
 
 type PGRecordGender = "male" | "female" | "unisex";
 
+const IP_LOCATION_TTL_MS = 6 * 60 * 60 * 1000;
+const ipLocationCache = new Map<string, { lat: number; lng: number; at: number }>();
+
+function clientIp(headers: Headers): string {
+  const cf = headers.get("cf-connecting-ip");
+  if (cf) return cf.trim();
+  const xff = headers.get("x-forwarded-for");
+  if (xff) return xff.split(",")[0].trim();
+  return (headers.get("x-real-ip") || "").trim();
+}
+
+function isPrivateIp(ip: string): boolean {
+  return (
+    !ip ||
+    ip === "::1" ||
+    ip.startsWith("127.") ||
+    ip.startsWith("::ffff:127.") ||
+    ip.startsWith("10.") ||
+    ip.startsWith("192.168.") ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(ip) ||
+    ip.startsWith("fc") ||
+    ip.startsWith("fd")
+  );
+}
+
+async function lookupIpLocation(
+  ip: string
+): Promise<{ lat: number; lng: number } | undefined> {
+  const cached = ipLocationCache.get(ip);
+  if (cached && Date.now() - cached.at < IP_LOCATION_TTL_MS) {
+    return { lat: cached.lat, lng: cached.lng };
+  }
+  try {
+    const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, {
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!res.ok) return undefined;
+    const data = (await res.json()) as {
+      success?: boolean;
+      latitude?: number;
+      longitude?: number;
+    };
+    if (
+      data.success &&
+      typeof data.latitude === "number" &&
+      typeof data.longitude === "number"
+    ) {
+      ipLocationCache.set(ip, { lat: data.latitude, lng: data.longitude, at: Date.now() });
+      return { lat: data.latitude, lng: data.longitude };
+    }
+  } catch {
+    /* geolocation lookup unavailable */
+  }
+  return undefined;
+}
+
+async function resolveClientLocation(
+  request: NextRequest
+): Promise<{ lat: number; lng: number } | undefined> {
+  const headers = request.headers;
+  const ipLat = headers.get("x-vercel-ip-latitude");
+  const ipLng = headers.get("x-vercel-ip-longitude");
+  if (ipLat && ipLng && Number.isFinite(Number(ipLat)) && Number.isFinite(Number(ipLng))) {
+    return { lat: Number(ipLat), lng: Number(ipLng) };
+  }
+  const cfLat = headers.get("cf-iplatitude");
+  const cfLng = headers.get("cf-iplongitude");
+  if (cfLat && cfLng && Number.isFinite(Number(cfLat)) && Number.isFinite(Number(cfLng))) {
+    return { lat: Number(cfLat), lng: Number(cfLng) };
+  }
+  const ip = clientIp(headers);
+  if (isPrivateIp(ip)) return undefined;
+  return lookupIpLocation(ip);
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const filters: PGFilters = {};
@@ -29,12 +104,7 @@ export async function GET(request: NextRequest) {
       likes: engagement.likes[r.id] ?? r.likes ?? 0,
     };
   });
-  const ipLat = request.headers.get("x-vercel-ip-latitude");
-  const ipLng = request.headers.get("x-vercel-ip-longitude");
-  const clientLocation =
-    ipLat && ipLng && Number.isFinite(Number(ipLat)) && Number.isFinite(Number(ipLng))
-      ? { lat: Number(ipLat), lng: Number(ipLng) }
-      : undefined;
+  const clientLocation = await resolveClientLocation(request);
   return NextResponse.json(
     { listings, clientLocation },
     { headers: { "Cache-Control": "private, max-age=60" } }

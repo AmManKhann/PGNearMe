@@ -32,20 +32,35 @@ function SearchResults() {
   const sort: SortValue = sortParam ?? "nearest";
 
   const [records, setRecords] = useState<PGRecord[]>([]);
+  const [ipLocation, setIpLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams();
     params.set("status", "approved");
     fetch(`/api/pg?${params.toString()}`)
       .then((r) => r.json())
-      .then((d) => setRecords(d.listings || []))
+      .then((d) => {
+        setRecords(d.listings || []);
+        const cl = d.clientLocation as { lat?: number; lng?: number } | undefined;
+        if (!hasLocation && cl && typeof cl.lat === "number" && typeof cl.lng === "number") {
+          setIpLocation({ lat: cl.lat, lng: cl.lng });
+        }
+      })
       .catch(() => setRecords([]));
-  }, []);
+  }, [hasLocation]);
+
+  const location = useMemo(
+    () => (hasLocation ? { lat: userLat, lng: userLng } : ipLocation),
+    [hasLocation, userLat, userLng, ipLocation]
+  );
 
   const results = useMemo(() => {
     const all = records.map((l) => ({
       ...toPGListing(l),
-      distance: getDistanceKm(userLat, userLng, l.lat, l.lng),
+      distance:
+        location && typeof l.lat === "number" && typeof l.lng === "number"
+          ? getDistanceKm(location.lat, location.lng, l.lat, l.lng)
+          : null,
     }));
 
     let filtered = all;
@@ -103,17 +118,20 @@ function SearchResults() {
     }
 
     return filtered;
-  }, [city, query, gender, priceRange, budget, food, verifiedOnly, userLat, userLng, sort, sharing, amenities, records]);
+  }, [city, query, gender, priceRange, budget, food, verifiedOnly, location, sort, sharing, amenities, records]);
 
   const nearestFallback = useMemo(() => {
     return records
       .map((l) => ({
         ...toPGListing(l),
-        distance: getDistanceKm(userLat, userLng, l.lat, l.lng),
+        distance:
+          location && typeof l.lat === "number" && typeof l.lng === "number"
+            ? getDistanceKm(location.lat, location.lng, l.lat, l.lng)
+            : null,
       }))
       .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
       .slice(0, 6);
-  }, [records, userLat, userLng]);
+  }, [records, location]);
 
   const updateSort = (value: SortValue) => {
     const sp = new URLSearchParams(searchParams.toString());
@@ -148,7 +166,7 @@ function SearchResults() {
             </h1>
             <p className="text-sm text-muted mt-1">
               {results.length} listing{results.length !== 1 ? "s" : ""} found
-              {hasLocation && (
+              {location && (
                 <span className="ml-2 inline-flex items-center gap-1 text-secondary font-medium">
                   <Navigation className="w-3 h-3" />
                   sorted by nearest

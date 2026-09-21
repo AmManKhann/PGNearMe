@@ -155,12 +155,8 @@ export function LivePGFeed() {
 
     const mapped = filtered.map((r) => {
       const hasCoords = typeof r.lat === "number" && typeof r.lng === "number";
-      let distance: number | null = null;
-      if (coords) {
-        distance = getDistanceKm(coords.lat, coords.lng, r.lat, r.lng);
-      } else if (hasCoords) {
-        distance = 0;
-      }
+      const distance =
+        coords && hasCoords ? getDistanceKm(coords.lat, coords.lng, r.lat, r.lng) : null;
       return toPGListing(r, distance);
     });
 
@@ -180,12 +176,8 @@ export function LivePGFeed() {
   const nearestFallback = useMemo<PGListing[]>(() => {
     const mapped = records.map((r) => {
       const hasCoords = typeof r.lat === "number" && typeof r.lng === "number";
-      let distance: number | null = null;
-      if (coords) {
-        distance = getDistanceKm(coords.lat, coords.lng, r.lat, r.lng);
-      } else if (hasCoords) {
-        distance = 0;
-      }
+      const distance =
+        coords && hasCoords ? getDistanceKm(coords.lat, coords.lng, r.lat, r.lng) : null;
       return toPGListing(r, distance);
     });
     return mapped
@@ -219,7 +211,10 @@ export function LivePGFeed() {
 
   const requestLocation = () => {
     setBannerDismissed(false);
-    if (!geolocationSupported) return;
+    if (!geolocationSupported) {
+      alert("Location permission denied. Please allow location access and try again.");
+      return;
+    }
     setStatus("locating");
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -227,7 +222,16 @@ export function LivePGFeed() {
         setStatus("granted");
         setSort("nearest");
       },
-      () => setStatus("denied"),
+      (err) => {
+        setStatus("denied");
+        if (err.code === 1) {
+          alert("Location permission denied. Please allow location access and try again.");
+        } else if (err.code === 2) {
+          alert("GPS is turned off. Please turn on your device GPS and try again.");
+        } else {
+          alert("Location request timed out. Please turn on your device GPS and try again.");
+        }
+      },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
     );
   };
@@ -331,10 +335,6 @@ export function LivePGFeed() {
               {status === "denied"
                 ? "Location access is turned off"
                 : "Location is not available on this device"}
-            </p>
-            <p className="text-sm text-muted mt-0.5">
-              Enter a city or locality in the search bar above to find PGs near you.
-              {status === "denied" && " You can also enable GPS/location for this site."}
             </p>
             <div className="flex flex-wrap items-center gap-3 mt-3">
               <button
