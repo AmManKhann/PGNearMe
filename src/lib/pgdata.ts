@@ -3,7 +3,7 @@ import { getRecords, writeRecords } from "./store";
 
 const REPO = process.env.GITHUB_REPO?.trim() || "";
 const TOKEN = process.env.GITHUB_TOKEN?.trim() || "";
-const REMOTE = Boolean(REPO && process.env.VERCEL);
+const REMOTE = Boolean(REPO && TOKEN);
 
 export function isRemote(): boolean {
   return REMOTE;

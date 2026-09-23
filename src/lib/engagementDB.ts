@@ -22,7 +22,7 @@ const DB_FILE = path.join(DATA_DIR, "engagement.json");
 
 const REPO = process.env.GITHUB_REPO?.trim() || "";
 const TOKEN = process.env.GITHUB_TOKEN?.trim() || "";
-const REMOTE = Boolean(REPO && process.env.VERCEL);
+const REMOTE = Boolean(REPO && TOKEN);
 
 const emptyData: EngagementData = { reviews: [], likes: {} };
 

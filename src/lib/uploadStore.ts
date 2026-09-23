@@ -6,7 +6,7 @@ const UPLOAD_DIR = path.join(DATA_DIR, "uploads");
 
 const REPO = process.env.GITHUB_REPO?.trim() || "";
 const TOKEN = process.env.GITHUB_TOKEN?.trim() || "";
-const REMOTE = Boolean(REPO && TOKEN && process.env.VERCEL);
+const REMOTE = Boolean(REPO && TOKEN);
 
 const FETCH_TIMEOUT_MS = 8000;
 
