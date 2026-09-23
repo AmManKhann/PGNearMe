@@ -24,7 +24,7 @@ export function PGCard({ listing }: { listing: PGListing }) {
   const ratingPct = Math.max(0, Math.min(100, (listing.rating / 5) * 100));
   return (
     <Link href={`/pg/${listing.id}`} className="block">
-      <div className="bg-surface rounded-xl border border-border overflow-hidden card-hover group">
+      <div className="bg-surface rounded-xl border border-border overflow-hidden card-hover group [content-visibility:auto] [contain-intrinsic-size:auto_420px]">
         <div className="relative h-48 bg-surface overflow-hidden">
           {listing.images[0] ? (
             <Image

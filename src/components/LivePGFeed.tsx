@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Navigation,
   MapPin,
@@ -16,9 +16,8 @@ import { SearchBar } from "@/components/SearchBar";
 import { SortDropdown, type SortValue } from "@/components/SortDropdown";
 import { toPGListing, type PGListing } from "@/lib/listings";
 import type { PGRecord } from "@/lib/types";
-import { getDistanceKm } from "@/lib/geo";
 import { CITY_SELECT_EVENT, RESET_HOME_EVENT } from "@/lib/searchFocus";
-import { hasAmenity, hasFood, budgetOptions, sharingOptions, amenityOptions, genderOptions } from "@/lib/filterOptions";
+import { budgetOptions, sharingOptions, amenityOptions, genderOptions } from "@/lib/filterOptions";
 
 type LocationStatus = "locating" | "granted" | "denied" | "idle";
 
@@ -43,9 +42,24 @@ const emptyFilters: Filters = {
 const geolocationSupported =
   typeof navigator !== "undefined" && "geolocation" in navigator;
 
+const PAGE_SIZE = 12;
+
+type FeedRecord = PGRecord & { distanceKm?: number | null };
+
+interface FeedData {
+  listings: FeedRecord[];
+  total: number;
+  page: number;
+  hasMore: boolean;
+  clientLocation?: { lat?: number; lng?: number };
+}
+
 export function LivePGFeed() {
-  const [records, setRecords] = useState<PGRecord[]>([]);
+  const [records, setRecords] = useState<FeedRecord[]>([]);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [status, setStatus] = useState<LocationStatus>("locating");
   const [bannerDismissed, setBannerDismissed] = useState(false);
@@ -53,23 +67,126 @@ export function LivePGFeed() {
   const [sort, setSort] = useState<SortValue>("nearest");
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [fallback, setFallback] = useState<PGListing[]>([]);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const requestIdRef = useRef(0);
+  const pageRef = useRef(1);
+  const loadingMoreRef = useRef(false);
+
+  const buildParams = useCallback(
+    (pageNum: number) => {
+      const p = new URLSearchParams({
+        status: "approved",
+        sort,
+        page: String(pageNum),
+        limit: String(PAGE_SIZE),
+      });
+      if (coords) {
+        p.set("lat", String(coords.lat));
+        p.set("lng", String(coords.lng));
+      }
+      const q = query.trim();
+      if (q) p.set("q", q);
+      if (filters.verified) p.set("verified", "1");
+      if (filters.budget) p.set("priceMax", filters.budget);
+      if (filters.gender) p.set("gender", filters.gender);
+      if (filters.sharing.length > 0) p.set("sharing", filters.sharing.join(","));
+      if (filters.food) p.set("food", "1");
+      if (filters.amenities.length > 0) p.set("amenities", filters.amenities.join(","));
+      return p;
+    },
+    [coords, query, sort, filters]
+  );
+
+  const loadFallback = useCallback(async () => {
+    try {
+      const params = new URLSearchParams({
+        status: "approved",
+        sort: "nearest",
+        page: "1",
+        limit: "4",
+      });
+      if (coords) {
+        params.set("lat", String(coords.lat));
+        params.set("lng", String(coords.lng));
+      }
+      const res = await fetch(`/api/pg?${params.toString()}`);
+      const d: FeedData = await res.json();
+      setFallback((d.listings || []).map((r) => toPGListing(r, r.distanceKm)));
+    } catch {
+      setFallback([]);
+    }
+  }, [coords]);
 
   useEffect(() => {
-    const params = new URLSearchParams({ status: "approved" });
-    fetch(`/api/pg?${params.toString()}`)
+    const id = ++requestIdRef.current;
+    pageRef.current = 1;
+    fetch(`/api/pg?${buildParams(1).toString()}`)
       .then((r) => r.json())
-      .then((d) => {
+      .then(async (d: FeedData) => {
+        if (requestIdRef.current !== id) return;
         setRecords(d.listings || []);
-        const cl = d.clientLocation as { lat?: number; lng?: number } | undefined;
-        if (cl && typeof cl.lat === "number" && typeof cl.lng === "number") {
-          const ipCoords = { lat: cl.lat, lng: cl.lng };
-          setCoords((prev) => (prev ? prev : ipCoords));
+        setTotal(d.total || 0);
+        setHasMore(!!d.hasMore);
+        setFallback([]);
+        const cl = d.clientLocation;
+        if (!coords && cl && typeof cl.lat === "number" && typeof cl.lng === "number") {
+          setCoords({ lat: cl.lat, lng: cl.lng });
+        }
+        if ((d.total || 0) === 0) await loadFallback();
+      })
+      .catch(() => {
+        if (requestIdRef.current === id) {
+          setRecords([]);
+          setTotal(0);
+          setHasMore(false);
+          setFallback([]);
         }
       })
-      .catch(() => setRecords([]))
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => {
+        if (requestIdRef.current === id) setLoading(false);
+      });
+  }, [buildParams, coords, loadFallback]);
+
+  const loadMore = useCallback(async () => {
+    if (loadingMoreRef.current) return;
+    loadingMoreRef.current = true;
+    setLoadingMore(true);
+    const id = requestIdRef.current;
+    const nextPage = pageRef.current + 1;
+    try {
+      const res = await fetch(`/api/pg?${buildParams(nextPage).toString()}`);
+      const d: FeedData = await res.json();
+      if (requestIdRef.current !== id) return;
+      pageRef.current = nextPage;
+      setRecords((prev) => {
+        const seen = new Set(prev.map((x) => x.id));
+        return [...prev, ...(d.listings || []).filter((x) => !seen.has(x.id))];
+      });
+      setHasMore(!!d.hasMore);
+    } catch {
+      // transient load-more failure: retry on next scroll
+    } finally {
+      loadingMoreRef.current = false;
+      if (requestIdRef.current === id) setLoadingMore(false);
+    }
+  }, [buildParams]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading && !loadingMoreRef.current) {
+          loadMore();
+        }
+      },
+      { rootMargin: "800px 0px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasMore, loading, loadMore]);
 
   useEffect(() => {
     if (!geolocationSupported) return;
@@ -118,73 +235,10 @@ export function LivePGFeed() {
     filters.amenities.length +
     (filters.gender ? 1 : 0);
 
-  const listings = useMemo<PGListing[]>(() => {
-    const q = query.trim().toLowerCase();
-    const tokens = q ? q.split(/\s+/).filter(Boolean) : [];
-    const budget = filters.budget ? Number(filters.budget) : null;
-
-    const filtered = records.filter((r) => {
-      if (
-        tokens.length > 0 &&
-        !tokens.every((t) =>
-          `${r.name} ${r.locality} ${r.city} ${r.state ?? ""} ${r.pincode ?? ""} ${r.address ?? ""}`
-            .toLowerCase()
-            .includes(t)
-        )
-      ) {
-        return false;
-      }
-      if (filters.verified && !r.isVerified) return false;
-      if (budget !== null && r.priceMin > budget) return false;
-      if (filters.gender && r.gender !== filters.gender) return false;
-      if (filters.sharing.length > 0 && !(r.sharing || []).some((s) => filters.sharing.includes(s))) {
-        return false;
-      }
-      if (filters.food && !hasFood(r.amenities)) return false;
-      if (
-        filters.amenities.length > 0 &&
-        !filters.amenities.every((a) => {
-          const opt = amenityOptions.find((o) => o.value === a);
-          return opt ? hasAmenity(r.amenities, opt.match) : true;
-        })
-      ) {
-        return false;
-      }
-      return true;
-    });
-
-    const mapped = filtered.map((r) => {
-      const hasCoords = typeof r.lat === "number" && typeof r.lng === "number";
-      const distance =
-        coords && hasCoords ? getDistanceKm(coords.lat, coords.lng, r.lat, r.lng) : null;
-      return toPGListing(r, distance);
-    });
-
-    switch (sort) {
-      case "price-asc":
-        mapped.sort((a, b) => a.priceMin - b.priceMin);
-        break;
-      case "nearest":
-      default:
-        mapped.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
-        break;
-    }
-
-    return mapped;
-  }, [records, query, filters, sort, coords]);
-
-  const nearestFallback = useMemo<PGListing[]>(() => {
-    const mapped = records.map((r) => {
-      const hasCoords = typeof r.lat === "number" && typeof r.lng === "number";
-      const distance =
-        coords && hasCoords ? getDistanceKm(coords.lat, coords.lng, r.lat, r.lng) : null;
-      return toPGListing(r, distance);
-    });
-    return mapped
-      .filter((l) => l.id !== "")
-      .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
-      .slice(0, 6);
-  }, [records, coords]);
+  const listings = useMemo<PGListing[]>(
+    () => records.map((r) => toPGListing(r, r.distanceKm ?? null)),
+    [records]
+  );
 
   const handleSearch = ({
     city,
@@ -318,7 +372,7 @@ export function LivePGFeed() {
               ) : (
                 <MapPin className="w-3.5 h-3.5 text-muted" />
               )}
-              {listings.length} available listing{listings.length !== 1 ? "s" : ""}
+              {total} available listing{total !== 1 ? "s" : ""}
               {filters.verified && " · verified only"}
             </>
           )}
@@ -391,19 +445,28 @@ export function LivePGFeed() {
               </button>
             )}
           </div>
-          {nearestFallback.length > 0 && (
+          {fallback.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {nearestFallback.map((listing) => (
+              {fallback.map((listing) => (
                 <PGCard key={listing.id} listing={listing} />
               ))}
             </div>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings.map((listing) => (
-            <PGCard key={listing.id} listing={listing} />
-          ))}
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {listings.map((listing) => (
+              <PGCard key={listing.id} listing={listing} />
+            ))}
+          </div>
+          {loadingMore && (
+            <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted">
+              <Loader2 className="w-4 h-4 animate-spin text-secondary" />
+              Loading more listings...
+            </div>
+          )}
+          <div ref={sentinelRef} className="h-px" />
         </div>
       )}
 
@@ -618,7 +681,7 @@ export function LivePGFeed() {
                   onClick={() => setFiltersOpen(false)}
                   className="flex-1 px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-light transition-all"
                 >
-                  Show {listings.length} result{listings.length !== 1 ? "s" : ""}
+                  Show {total} result{total !== 1 ? "s" : ""}
                 </button>
               </div>
             </div>

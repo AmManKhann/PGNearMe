@@ -1,137 +1,152 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SearchBar } from "@/components/SearchBar";
 import { SearchFilters } from "@/components/SearchFilters";
 import { PGCard } from "@/components/PGCard";
 import { SortDropdown, type SortValue } from "@/components/SortDropdown";
-import { toPGListing } from "@/lib/listings";
+import { toPGListing, type PGListing } from "@/lib/listings";
 import type { PGRecord } from "@/lib/types";
-import { getDistanceKm } from "@/lib/geo";
-import { hasAmenity, hasFood, amenityOptions } from "@/lib/filterOptions";
-import { ArrowUpDown, Navigation } from "lucide-react";
+import { ArrowUpDown, Loader2, Navigation } from "lucide-react";
+
+const PAGE_SIZE = 12;
+
+type FeedRecord = PGRecord & { distanceKm?: number | null };
+
+interface FeedData {
+  listings: FeedRecord[];
+  total: number;
+  page: number;
+  hasMore: boolean;
+  clientLocation?: { lat?: number; lng?: number };
+}
 
 function SearchResults() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const city = searchParams.get("city") ?? "";
-  const query = searchParams.get("q") ?? "";
-  const gender = searchParams.get("gender") ?? "";
-  const priceRange = searchParams.get("price") ?? "";
-  const budgetParam = searchParams.get("budget");
-  const budget = budgetParam ? parseInt(budgetParam, 10) : null;
-  const sharing = (searchParams.get("sharing") ?? "").split(",").filter(Boolean);
-  const amenities = (searchParams.get("amenities") ?? "").split(",").filter(Boolean);
-  const food = searchParams.get("food") === "1";
-  const verifiedOnly = searchParams.get("verified") === "1";
+  const sortParam = searchParams.get("sort") as SortValue | null;
+  const sort: SortValue = sortParam ?? "nearest";
   const userLat = parseFloat(searchParams.get("lat") ?? "");
   const userLng = parseFloat(searchParams.get("lng") ?? "");
   const hasLocation = !isNaN(userLat) && !isNaN(userLng);
-  const sortParam = searchParams.get("sort") as SortValue | null;
-  const sort: SortValue = sortParam ?? "nearest";
 
-  const [records, setRecords] = useState<PGRecord[]>([]);
-  const [ipLocation, setIpLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [records, setRecords] = useState<FeedRecord[]>([]);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [fallback, setFallback] = useState<PGListing[]>([]);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const requestIdRef = useRef(0);
+  const pageRef = useRef(1);
+  const loadingMoreRef = useRef(false);
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    params.set("status", "approved");
-    fetch(`/api/pg?${params.toString()}`)
-      .then((r) => r.json())
-      .then((d) => {
-        setRecords(d.listings || []);
-        const cl = d.clientLocation as { lat?: number; lng?: number } | undefined;
-        if (!hasLocation && cl && typeof cl.lat === "number" && typeof cl.lng === "number") {
-          setIpLocation({ lat: cl.lat, lng: cl.lng });
-        }
-      })
-      .catch(() => setRecords([]));
-  }, [hasLocation]);
+  const paramsStr = searchParams.toString();
 
-  const location = useMemo(
-    () => (hasLocation ? { lat: userLat, lng: userLng } : ipLocation),
-    [hasLocation, userLat, userLng, ipLocation]
+  const buildParams = useCallback(
+    (pageNum: number) => {
+      const p = new URLSearchParams(paramsStr);
+      p.set("status", "approved");
+      p.set("page", String(pageNum));
+      p.set("limit", String(PAGE_SIZE));
+      if (!p.has("sort")) p.set("sort", "nearest");
+      const lat = p.get("lat");
+      const lng = p.get("lng");
+      if (lat === null || isNaN(Number(lat))) p.delete("lat");
+      if (lng === null || isNaN(Number(lng))) p.delete("lng");
+      const budget = p.get("budget");
+      if (budget) p.set("priceMax", budget);
+      return p;
+    },
+    [paramsStr]
   );
 
-  const results = useMemo(() => {
-    const all = records.map((l) => ({
-      ...toPGListing(l),
-      distance:
-        location && typeof l.lat === "number" && typeof l.lng === "number"
-          ? getDistanceKm(location.lat, location.lng, l.lat, l.lng)
-          : null,
-    }));
+  const loadNearestFallback = useCallback(async () => {
+    try {
+      const p = new URLSearchParams({
+        status: "approved",
+        sort: "nearest",
+        page: "1",
+        limit: "4",
+      });
+      if (hasLocation) {
+        p.set("lat", String(userLat));
+        p.set("lng", String(userLng));
+      }
+      const res = await fetch(`/api/pg?${p.toString()}`);
+      const d: FeedData = await res.json();
+      setFallback((d.listings || []).map((r) => toPGListing(r, r.distanceKm)));
+    } catch {
+      setFallback([]);
+    }
+  }, [hasLocation, userLat, userLng]);
 
-    let filtered = all;
+  useEffect(() => {
+    const id = ++requestIdRef.current;
+    pageRef.current = 1;
+    fetch(`/api/pg?${buildParams(1).toString()}`)
+      .then((r) => r.json())
+      .then(async (d: FeedData) => {
+        if (requestIdRef.current !== id) return;
+        setRecords(d.listings || []);
+        setTotal(d.total || 0);
+        setHasMore(!!d.hasMore);
+        setFallback([]);
+        if ((d.total || 0) === 0) await loadNearestFallback();
+      })
+      .catch(() => {
+        if (requestIdRef.current === id) {
+          setRecords([]);
+          setTotal(0);
+          setHasMore(false);
+          setFallback([]);
+        }
+      })
+      .finally(() => {
+        if (requestIdRef.current === id) setLoading(false);
+      });
+  }, [buildParams, loadNearestFallback]);
 
-    if (city) {
-      const c = city.toLowerCase();
-      filtered = filtered.filter((l) =>
-        `${l.name} ${l.locality} ${l.city} ${l.state ?? ""} ${l.pincode ?? ""} ${l.address ?? ""}`
-          .toLowerCase()
-          .includes(c)
-      );
+  const loadMore = useCallback(async () => {
+    if (loadingMoreRef.current) return;
+    loadingMoreRef.current = true;
+    setLoadingMore(true);
+    const id = requestIdRef.current;
+    const nextPage = pageRef.current + 1;
+    try {
+      const res = await fetch(`/api/pg?${buildParams(nextPage).toString()}`);
+      const d: FeedData = await res.json();
+      if (requestIdRef.current !== id) return;
+      pageRef.current = nextPage;
+      setRecords((prev) => {
+        const seen = new Set(prev.map((x) => x.id));
+        return [...prev, ...(d.listings || []).filter((x) => !seen.has(x.id))];
+      });
+      setHasMore(!!d.hasMore);
+    } catch {
+      // transient load-more failure: retry on next scroll
+    } finally {
+      loadingMoreRef.current = false;
+      if (requestIdRef.current === id) setLoadingMore(false);
     }
-    if (query) {
-      const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
-      filtered = filtered.filter((l) =>
-        tokens.every((t) =>
-          `${l.name} ${l.locality} ${l.city} ${l.state ?? ""} ${l.pincode ?? ""} ${l.address ?? ""}`
-            .toLowerCase()
-            .includes(t)
-        )
-      );
-    }
-    if (gender) {
-      filtered = filtered.filter((l) => l.gender === gender);
-    }
-    if (priceRange) {
-      const [min, max] = priceRange.split("-").map(Number);
-      filtered = filtered.filter((l) => l.priceMin >= min && l.priceMax <= max);
-    }
-    if (budget) {
-      filtered = filtered.filter((l) => l.priceMin <= budget);
-    }
-    if (sharing.length > 0) {
-      filtered = filtered.filter((l) => l.sharing && l.sharing.some((s) => sharing.includes(s)));
-    }
-    if (food) {
-      filtered = filtered.filter((l) => hasFood(l.amenities));
-    }
-    if (amenities.length > 0) {
-      filtered = filtered.filter((l) =>
-        amenities.every((a) => {
-          const opt = amenityOptions.find((o) => o.value === a);
-          return opt ? hasAmenity(l.amenities, opt.match) : true;
-        })
-      );
-    }
-    if (verifiedOnly) {
-      filtered = filtered.filter((l) => l.isVerified);
-    }
+  }, [buildParams]);
 
-    if (sort === "price-asc") {
-      filtered.sort((a, b) => a.priceMin - b.priceMin);
-    } else {
-      filtered.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
-    }
-
-    return filtered;
-  }, [city, query, gender, priceRange, budget, food, verifiedOnly, location, sort, sharing, amenities, records]);
-
-  const nearestFallback = useMemo(() => {
-    return records
-      .map((l) => ({
-        ...toPGListing(l),
-        distance:
-          location && typeof l.lat === "number" && typeof l.lng === "number"
-            ? getDistanceKm(location.lat, location.lng, l.lat, l.lng)
-            : null,
-      }))
-      .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
-      .slice(0, 6);
-  }, [records, location]);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading && !loadingMoreRef.current) {
+          loadMore();
+        }
+      },
+      { rootMargin: "800px 0px" }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasMore, loading, loadMore]);
 
   const updateSort = (value: SortValue) => {
     const sp = new URLSearchParams(searchParams.toString());
@@ -165,8 +180,8 @@ function SearchResults() {
               {city ? `PGs in ${city}` : "All PG Listings"}
             </h1>
             <p className="text-sm text-muted mt-1">
-              {results.length} listing{results.length !== 1 ? "s" : ""} found
-              {location && (
+              {total} listing{total !== 1 ? "s" : ""} found
+              {hasLocation && (
                 <span className="ml-2 inline-flex items-center gap-1 text-secondary font-medium">
                   <Navigation className="w-3 h-3" />
                   sorted by nearest
@@ -184,11 +199,26 @@ function SearchResults() {
             </Suspense>
           </div>
 
-          {results.length > 0 ? (
+          {loading ? (
             <div className="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {results.map((listing) => (
-                <PGCard key={listing.id} listing={listing} />
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-80 bg-surface-alt border border-border rounded-xl animate-pulse" />
               ))}
+            </div>
+          ) : records.length > 0 ? (
+            <div className="flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {records.map((r) => (
+                  <PGCard key={r.id} listing={toPGListing(r, r.distanceKm ?? null)} />
+                ))}
+              </div>
+              {loadingMore && (
+                <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted">
+                  <Loader2 className="w-4 h-4 animate-spin text-secondary" />
+                  Loading more listings...
+                </div>
+              )}
+              <div ref={sentinelRef} className="h-px" />
             </div>
           ) : (
             <div className="flex-1">
@@ -201,9 +231,9 @@ function SearchResults() {
                   Showing the nearest PGs instead:
                 </p>
               </div>
-              {nearestFallback.length > 0 && (
+              {fallback.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {nearestFallback.map((listing) => (
+                  {fallback.map((listing) => (
                     <PGCard key={listing.id} listing={listing} />
                   ))}
                 </div>

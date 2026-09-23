@@ -45,13 +45,18 @@ async function geocodeAddress(q: string): Promise<{ lat: number; lng: number } |
   return task;
 }
 
-export async function ensureCoordinates(records: PGRecord[]): Promise<PGRecord[]> {
+export async function ensureCoordinates(
+  records: PGRecord[],
+  opts?: { allowNetwork?: boolean }
+): Promise<PGRecord[]> {
+  const allowNetwork = opts?.allowNetwork ?? records.length <= 500;
   return Promise.all(
     records.map(async (r) => {
       if (typeof r.lat === "number" && typeof r.lng === "number") return r;
       const cur = cityCoords(r.city);
+      if (!allowNetwork || cur) return cur ? { ...r, lat: cur.lat, lng: cur.lng } : r;
       const q = [r.locality, r.city, r.state, r.pincode].filter(Boolean).join(", ");
-      const coord = cur ?? (q ? await geocodeAddress(q) : undefined);
+      const coord = await geocodeAddress(q);
       return coord ? { ...r, lat: coord.lat, lng: coord.lng } : r;
     })
   );
