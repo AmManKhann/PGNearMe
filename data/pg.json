@@ -278,7 +278,7 @@
     "mapsUrl": "https://www.google.com/maps/place/Apex+Girls+Hostel+%26+Library+Sikar/@27.6233033,75.1622838,20.76z/data=!4m28!1m21!4m20!1m11!1m2!1s0x396c4adf4c57e281:0xce1c63a0cf22e09!2sJaipur,+Rajasthan!2m2!1d75.7872709!2d26.9124336!3m4!1m2!1d75.1596122!2d27.6283701!3s0x396cbb2bef91343b:0x4b449fe1bb8fdc63!1m6!1m2!1s0x396cbb8ace25fd37:0x9d3799a7808d50ff!2sApex+Girls+Hostel+%26+Library+Sikar,+Matrix+neet+division,+Gurukrupa+carrier+institute,+Rajat+path,+Piprali+Rd,+opposite+Aayam+coaching+centre,+Sikar,+Rajasthan+332001!2m2!1d75.1625308!2d27.6234394!3e9!3m5!1s0x396cbb8ace25fd37:0x9d3799a7808d50ff!8m2!3d27.6234394!4d75.1625308!16s%2Fg%2F11kj40rkk9?entry=ttu&g_ep=EgoyMDI2MDkyMC4wIKXMDSoASAFQAw%3D%3D",
     "sharing": [],
     "id": "pg-1790140182962-cymw",
-    "status": "pending",
+    "status": "approved",
     "isFeatured": false,
     "priceMin": 8000,
     "priceMax": 8000,
@@ -288,7 +288,7 @@
     "isVerified": false,
     "occupancy": "Dubble Sharing",
     "createdAt": "2026-09-23T05:09:42.962Z",
-    "updatedAt": "2026-09-23T05:25:48.174Z",
+    "updatedAt": "2026-09-23T05:27:21.307Z",
     "lat": 27.6234394,
     "lng": 75.1625308
   }
