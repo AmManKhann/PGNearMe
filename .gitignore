@@ -53,3 +53,9 @@ named-tunnel-*.log
 
 .vercel
 .env*
+
+# opennext / cloudflare
+.open-next/
+.dev.vars
+cloudflare-env.d.ts
+wrangler/wrangler-*

@@ -1,0 +1,28 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "pg-near-me",
+  "compatibility_date": "2026-06-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "pg-near-me"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "app.pg-near-me.com",
+      "custom_domain": true
+    }
+  ],
+  "vars": {
+    "GITHUB_REPO": "AmManKhann/PGNearMe",
+    "ADMIN_EMAIL": "aaammnkhan@gmail.com",
+    "NEXTAUTH_URL": "https://app.pg-near-me.com"
+  }
+}
