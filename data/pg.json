@@ -238,5 +238,56 @@
     "occupancy": "Triple Sharing",
     "createdAt": "2026-09-21T15:35:54.563Z",
     "updatedAt": "2026-09-22T20:22:52.040Z"
+  },
+  {
+    "name": "Apex Girls Hostel & Library Sikar",
+    "city": "Sikar",
+    "state": "Rajasthan",
+    "pincode": "332001",
+    "locality": "Surya nagar Piprali road",
+    "address": "Aayam coaching ke samne, rajat path, surya nagar ,Sikar",
+    "description": "Apex Girls Hostel & Library Sikar paying guest accommodation in Surya nagar Piprali road, Sikar.",
+    "gender": "female",
+    "totalBeds": 80,
+    "amenities": [
+      "WiFi",
+      "Food (3 meals)",
+      "AC Rooms",
+      "Laundry",
+      "Power Backup",
+      "CCTV",
+      "Hot Water",
+      "Housekeeping",
+      "Parking"
+    ],
+    "pricing": [
+      {
+        "type": "Dubble Sharing",
+        "price": 8000,
+        "meals": "3 meals"
+      }
+    ],
+    "images": [
+      "/api/uploads/1790140168920-qywz2y4x.jpg",
+      "/api/uploads/1790140168032-04t0f1zw.jpg"
+    ],
+    "videos": [],
+    "ownerName": "Jitendra bajiya",
+    "phone": "9529182221",
+    "whatsapp": "9529182221",
+    "mapsUrl": "https://maps.app.goo.gl/o1fTJmjkGjsMF3pa7?g_st=ic",
+    "sharing": [],
+    "id": "pg-1790140182962-cymw",
+    "status": "pending",
+    "isFeatured": false,
+    "priceMin": 8000,
+    "priceMax": 8000,
+    "rating": 0,
+    "reviewCount": 0,
+    "likes": 0,
+    "isVerified": false,
+    "occupancy": "Dubble Sharing",
+    "createdAt": "2026-09-23T05:09:42.962Z",
+    "updatedAt": "2026-09-23T05:09:42.962Z"
   }
 ]
