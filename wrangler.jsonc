@@ -16,6 +16,18 @@
   ],
   "routes": [
     {
+      "pattern": "pg-near-me.com/*",
+      "zone_name": "pg-near-me.com"
+    },
+    {
+      "pattern": "www.pg-near-me.com/*",
+      "zone_name": "pg-near-me.com"
+    },
+    {
+      "pattern": "app.pg-near-me.com/*",
+      "zone_name": "pg-near-me.com"
+    },
+    {
       "pattern": "admin.pg-near-me.com/*",
       "zone_name": "pg-near-me.com"
     }
@@ -23,6 +35,6 @@
   "vars": {
     "GITHUB_REPO": "AmManKhann/PGNearMe",
     "ADMIN_EMAIL": "aaammnkhan@gmail.com",
-    "NEXTAUTH_URL": "https://app.pg-near-me.com"
+    "NEXTAUTH_URL": "https://www.pg-near-me.com"
   }
 }
